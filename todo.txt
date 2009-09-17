@@ -1,0 +1,45 @@
+OE Bakery ToDo:
+
+fix error message when command fails so that nice commandline string is printed
+instead of ugly array/list thingy
+
+oe init --openembedded-remotes
+	should add any missing remotes
+	and in the future warn about differences
+
+fix adding of remote's by oe init from localhost, so that they are setup as local
+remotes instead of ssh remotes.
+
+make oe init more robust to failures, such as often-broken git.openembedded.net
+
+oe config should show which local.conf is currently selected
+
+extend oe config to support branch switching also
+	default branch setting should be supported in the local.conf.d/ files
+
+extend oe config with command line arguments for local.conf and branch selection
+	oe config gallega	- should select local.conf.d/gallega and branch if specified
+	oe config --no-branch-switch gallega
+	oe config --branch=org.openembedded.dev gallega
+
+oe status
+	which branch is checked out
+	is it clean
+	which bitbake is used
+	where is tmpdir
+	what local.conf is used
+	what is the size of current tmpdir
+	what is the size of all other tmpdirs
+
+try to use recommended python versions (fx. 2.5 for bitbake-1.8.10)
+
+release 1.0
+
+oe put/get
+	simple upload / download of files to/from downloads mirror
+
+python distutils
+
+debian/ubuntu package and repository
+
+oe mirror compare
