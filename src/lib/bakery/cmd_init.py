@@ -15,13 +15,17 @@ class InitCommand:
                           action="store", type="string", dest="file",
                           help="use configuration file FILE")
 
+        parser.add_option("-u", "--url",
+                          action="store", type="string", dest="url",
+                          help="download and use configuration file URL")
+
         parser.add_option("-b", "--bitbake",
                           action="append_const", dest="what", const="bitbake",
-                          help="clone and configure BitBake")
+                          help="clone and configure BitBake repository")
 
         parser.add_option("-m", "--metadata",
                           action="append_const", dest="what", const="openembedded",
-                          help="clone and configure metadata repositories")
+                          help="clone and configure metadata repository")
 
         (options, args) = parser.parse_args(argv)
 
@@ -35,33 +39,17 @@ class InitCommand:
             options.what.append(arg)
 
         if options.file:
-            print "--file not implemented: download and install file to conf/oe.conf"
+            print "--file not implemented: download and install file to conf/bakery.ini"
+            return
+
+        if options.url:
+            print "--url not implemented: download and install file to conf/bakery.ini"
             return
 
         config = bakery.read_config()
 
         self.options = options
         self.config = config
-
-        if "bitbake" in options.what:
-
-            if not config.has_section("bitbake"):
-                print "WARNING: no [bitbake] section in conf/oe.conf"
-                config.add_section("bitbake")
-
-            if not config.has_option("bitbake", "url"):
-                config.set("bitbake", "url",
-                           "git://git.openembedded.org/bitbake")
-
-            if not config.has_option("bitbake", "default"):
-                config.set("bitbake", "default",
-                           "branches/bitbake-1.8")
-            if not config.has_option("bitbake", "origin_name"):
-                config.set("bitbake", "origin_name", "origin")
-
-        if "metadata" in options.what:
-
-            self.prepare_metadata_sections()
 
         return
 
@@ -72,8 +60,7 @@ class InitCommand:
             self.init_bitbake()
 
         if "metadata" in self.options.what:
-            for section in self.metadata_sections:
-                self.init_metadata(section)
+            self.init_metadata()
 
 
     def init_bitbake(self):
@@ -82,69 +69,48 @@ class InitCommand:
             print "Skipping clone of bitbake"
     
         else:
-            bakery.call("git clone -o %s %s bitbake"%(
-                    self.config.get("bitbake", "origin_name"),
-                    self.config.get("bitbake", "url")))
+            if not bakery.call("git clone -o %s %s bitbake"%(
+                    self.config.get("bitbake", "origin"),
+                    self.config.get("bitbake", "repository"))):
+                return
+
+        os.chdir("bitbake")
+        bakery.call("git checkout %s"%(
+                self.config.get("bitbake", "version")))
+        os.chdir("..")
     
-        return
-
-
-    def prepare_metadata_sections(self):
-
-        self.metadata_sections = []
-
-        for section in self.config.sections():
-
-            if (len(section) > len("meta:") and
-                section[:len("meta:")] == "meta:"):
-
-                if section[len("meta:"):] in ["bin", "lib", "conf", "bitbake",
-                                              "ingredient", "prebake",
-                                              "tmp", "scm"]:
-                    print >>sys.stderr, "Invalid metadata section %s"%section
-                    continue
-
-                if not self.config.has_option(section, "url"):
-                    print >>sys.stderr, "Metadata section %s has no url option"%section
-
-                if not self.config.has_option(section, "origin_name"):
-                    self.config.set(section, "origin_name", "origin")
-
-                self.metadata_sections.append(section)
-
         return
             
     
-    def init_metadata(self, section):
+    def init_metadata(self):
 
-        meta_name = section[len("meta:"):]
-
-        if os.path.exists(meta_name):
-            print "Skipping clone of %s"%(meta_name)
+        if os.path.exists(self.config.get("metadata", "directory")):
+            print "Skipping clone of %s"%(
+                self.config.get("metadata", "directory"))
     
         else:
             if not bakery.call("git clone -o %s %s %s"%(
-                    self.config.get(section, "origin_name"),
-                    self.config.get(section, "url"),
-                    meta_name)):
+                    self.config.get("metadata", "origin"),
+                    self.config.get("metadata", "repository"),
+                    self.config.get("metadata", "directory"))):
                 return
     
-        if not os.chdir(meta_name):
-            return
+        os.chdir(self.config.get("metadata", "directory"))
 
         update = False
-        for option in self.config.options(section):
+        for option in self.config.options("metadata"):
 
-            if (len(option) > len("remote:") and
-                option[:len("remote:")] == "remote:"):
+            if (len(option) > len("remote.") and
+                option[:len("remote.")] == "remote."):
 
-                remote_name = option[len("remote:"):]
+                remote_name = option[len("remote."):]
 
                 if os.path.exists(".git/refs/remotes/%s"%(remote_name)):
-                    print >>sys.stderr, "Remote %s already created"%(remote_name)
+                    print >>sys.stderr, "Remote %s already created"%(
+                        remote_name)
                     continue
                 if bakery.call("git remote add %s %s"%(
-                        remote_name, self.config.get(section, option))):
+                        remote_name, self.config.get("metadata", option))):
                     update = True
 
         if update:

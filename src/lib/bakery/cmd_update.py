@@ -1,11 +1,11 @@
-import os, subprocess, socket
+import os, subprocess, socket, sys
 from optparse import OptionParser
 
 import bakery
 
 class UpdateCommand:
 
-    def __init__(self, argv, config):
+    def __init__(self, config, argv):
 
         parser = OptionParser("""Usage: oe update [options]
 
@@ -15,98 +15,61 @@ class UpdateCommand:
                           action="append_const", dest="what", const="bitbake",
                           help="update BitBake repository")
 
-        parser.add_option("-o", "--openembedded",
-                          action="append_const", dest="what", const="openembedded",
-                          help="update OpenEmbedded repository")
+        parser.add_option("-m", "--metadata",
+                          action="append_const", dest="what", const="metadata",
+                          help="update metadata repository")
 
         (options, args) = parser.parse_args(argv)
+
+        if options.what == None:
+            if len(args) == 0:
+                options.what = ["bitbake", "metadata"]
+            else:
+                options.what = []
+
+        for arg in args:
+            options.what.append(arg)
 
         self.config = config
         self.options = options
 
-        if options.what == None:
-            options.what = ["bitbake", "openembedded"]
+        return
 
-        if "bitbake" in options.what:
 
-            if not config.has_section("bitbake"):
-                print "WARNING: no [bitbake] section in conf/oe.conf"
-                config.add_section("bitbake")
+    def run(self):
 
-            if not config.has_option("bitbake", "url"):
-                config.set("bitbake", "url",
-                           "git://git.openembedded.org/bitbake")
+        if "bitbake" in self.options.what:
+            self.update_bitbake()
 
-            if not config.has_option("bitbake", "default"):
-                config.set("bitbake", "default",
-                           "branches/bitbake-1.8")
-
-            self.update_bitbake(config)
-
-        if "openembedded" in options.what:
-
-            if not config.has_section("openembedded"):
-                print "WARNING: no [openembedded] section in conf/oe.conf"
-                config.add_section("openembedded")
-
-            if not config.has_option("openembedded", "url"):
-                config.set("openembedded", "url",
-                           "git://git.openembedded.org/openembedded")
-            if not config.has_option("openembedded", "origin_name"):
-                config.set("openembedded", "origin_name", "origin")
-
-            self.update_openembedded(config)
+        if "metadata" in self.options.what:
+            self.update_metadata()
 
         return
 
 
-    def update_bitbake(self, config):
+    def update_bitbake(self):
+
+        print >>sys.stderr, "INFO: bitbake update not implemented yet"
+        return
     
-        if os.path.exists("bitbake"):
-            print "Skipping clone of bitbake"
-    
-        else:
-            bakery.call("git clone -o %s %s bitbake"%(
-                    config.get("bitbake", "origin_name"),
-                    config.get("bitbake", "url")))
+        if not os.path.exists("bitbake"):
+            print >>sys.stderr, "ERROR: bitbake not found!"
+            return
     
         return
 
 
-    def init_openembedded(self, config):
+    def update_metadata(self):
     
-        if os.path.exists("openembedded"):
-            print "Skipping clone of openembedded"
+        if not os.path.exists(self.config.get("metadata", "directory")):
+            print >>sys.stderr, "ERROR: metadata directory not found: %s"%(
+                self.config.get("metadata", "directory"))
     
-        else:
-            if (config.has_option("openembedded", "local_hostname") and
-                config.has_option("openembedded", "local_url") and
-                socket.gethostname() == config.get("openembedded",
-                                                   "local_hostname")):
-                url = config.get("openembedded", "local_url")
-            else:
-                url = config.get("openembedded", "url")
-        
-            bakery.call("git clone -o %s %s openembedded"%(
-                    config.get("openembedded", "origin_name"), url))
-    
-        os.chdir("openembedded")
-        update = False
-        for section in config.sections():
-            if (len(section) > len("remote:") and
-                section[:len("remote:")] == "remote:"):
-                remote = section[len("remote:"):]
-                if not config.has_option(section, "url"):
-                    print >>sys.stderr, "ERROR: no url option in [%s]"%section
-                    continue
-                if os.path.exists(".git/refs/remotes/%s"%(remote)):
-                    print >>sys.stderr, "Remote %s already created"%remote
-                    continue
-                if bakery.call("git remote add %s %s"%(
-                        remote, config.get(section, "url"))):
-                    update = True
+        os.chdir(self.config.get("metadata", "directory"))
 
-        if update:
-            bakery.call("git remote update")
+        bakery.call("git pull")
+        bakery.call("git remote update")
+
+        os.chdir("..")
 
         return

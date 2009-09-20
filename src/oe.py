@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 from __future__ import with_statement # This isn't required in Python 2.6
-
 import sys, dircache, subprocess, os, string, re, glob, hashlib
-from optparse import OptionParser
-from ConfigParser import SafeConfigParser
-
 
 def main():
 
@@ -33,12 +29,11 @@ specific command."""
             print usage
             return
 
-    # FIXME: os.path.abspath must be replaced with something that finds the target of symlinks
-    sys.path.insert(0,os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'lib'))
-
+    sys.path.insert(0,os.path.join(
+            os.path.dirname(os.path.realpath(sys.argv[0])), 'lib'))
     import bakery
     from bakery.cmd_init import InitCommand
-    #from bakery.cmd_update import UpdateCommand
+    from bakery.cmd_update import UpdateCommand
     #from bakery.cmd_config import ConfigCommand
     #from bakery.cmd_bake import BakeCommand
     #from bakery.cmd_ingredient import IngredientCommand
@@ -49,10 +44,10 @@ specific command."""
         cmd = InitCommand(sys.argv[2:])
         return cmd.run()
 
-    topdir = get_topdir()
+    topdir = bakery.get_topdir()
     os.chdir(topdir)
 
-    config = read_config()
+    config = bakery.read_config()
 
     if sys.argv[1] == "update":
         cmd = UpdateCommand(config, sys.argv[2:])
