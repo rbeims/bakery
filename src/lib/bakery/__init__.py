@@ -8,8 +8,7 @@ __all__ = [
 
 ]
 
-import sys, os, subprocess
-from ConfigParser import SafeConfigParser
+import sys, os, subprocess, re, ConfigParser
 
 
 def get_current_topdir(dir):
@@ -36,7 +35,7 @@ def get_topdir():
 
 
 def read_config():
-    config = SafeConfigParser()
+    config = ConfigParser.SafeConfigParser()
 
     if not config.read("conf/bakery.ini"):
         print >>sys.stderr, "ERROR: failed to parse %s/conf/bakery.ini"%os.getcwd()
@@ -50,7 +49,7 @@ def read_config():
         config.set("bitbake", "repository",
                    "git://git.openembedded.org/bitbake")
     if not config.has_option("bitbake", "version"):
-        config.set("bitbake", "version", "1.8.12")
+        config.set("bitbake", "version", "tags/1.8.12")
     if not config.has_option("bitbake", "origin"):
         config.set("bitbake", "origin", "origin")
 
@@ -73,6 +72,17 @@ def read_config():
                 config.remote_option("metadata",option)
 
     return config
+
+
+def get_simple_config_line(filename, variable):
+    if os.path.exists(filename):
+        regex = re.compile(variable +'\s*=\s*[\"\'](.*)[\"\']')
+        with open(filename) as file:
+            for line in file.readlines():
+                match = regex.match(line)
+                if match:
+                    return match.group(1)
+    return None
 
     
 def call(cmd, dry_run=False):

@@ -62,6 +62,8 @@ class InitCommand:
         if "metadata" in self.options.what:
             self.init_metadata()
 
+        return
+
 
     def init_bitbake(self):
     

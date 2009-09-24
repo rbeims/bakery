@@ -1,5 +1,5 @@
 import os, subprocess, socket, sys
-from optparse import OptionParser
+import optparse
 
 import bakery
 
@@ -7,7 +7,7 @@ class UpdateCommand:
 
     def __init__(self, config, argv):
 
-        parser = OptionParser("""Usage: oe update [options]
+        parser = optparse.OptionParser("""Usage: oe update [options]
 
   Update OE Bakery development environment in the current directory.""")
 

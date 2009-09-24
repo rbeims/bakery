@@ -34,10 +34,9 @@ specific command."""
     import bakery
     from bakery.cmd_init import InitCommand
     from bakery.cmd_update import UpdateCommand
-    #from bakery.cmd_config import ConfigCommand
-    #from bakery.cmd_bake import BakeCommand
+    from bakery.cmd_bake import BakeCommand
     #from bakery.cmd_ingredient import IngredientCommand
-    from bakery.cmd_prebake import PrebakeCommand
+    #from bakery.cmd_prebake import PrebakeCommand
     from bakery import misc
 
     if sys.argv[1] == "init":
@@ -51,9 +50,6 @@ specific command."""
 
     if sys.argv[1] == "update":
         cmd = UpdateCommand(config, sys.argv[2:])
-
-    elif sys.argv[1] == "config":
-        cmd = ConfigCommand(config, sys.argv[2:])
 
     elif sys.argv[1] == "bake":
         cmd = BakeCommand(config, sys.argv[2:])
