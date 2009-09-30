@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from __future__ import with_statement # This isn't required in Python 2.6
 import sys, dircache, subprocess, os, string, re, glob, hashlib
 
 def main():

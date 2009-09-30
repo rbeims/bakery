@@ -1,3 +1,5 @@
+from __future__ import with_statement # This isn't required in Python 2.6
+
 def get_simple_config_line(filename, variable):
     if os.path.exists(filename):
         regex = re.compile(variable +'\s*=\s*[\"\'](.*)[\"\']')
