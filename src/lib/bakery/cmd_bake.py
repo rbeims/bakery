@@ -93,9 +93,11 @@ class BakeCommand:
 
         metadir = "%s/%s"%(self.topdir, self.metadir)
 
-        os.environ["OE_HOME"] = self.topdir
-        os.environ["OE_TMPDIR"] = self.tmpdir
+        os.environ["BAKERY"] = self.topdir
+        os.environ["TMPDIR"] = self.tmpdir
         os.environ["BBPATH"] = "%s:%s"%(self.topdir, metadir)
+        os.environ["BBMASK"] = ""
+        os.environ["DL_DIR"] = "%s/ingredients"%(self.topdir)
         os.environ["PATH"] = "%s/bitbake/bin:%s"%(
             self.topdir, os.environ["PATH"])
 
@@ -104,13 +106,13 @@ class BakeCommand:
             print >>sys.stderr, "ERROR: found both a recipes and packages dir, what to do?"
             return
         elif os.path.exists("%s/recipes"%(metadir)):
-            os.environ["OE_BBFILES"] = "%s/recipes/*/*.bb"%(metadir)
+            os.environ["BBFILES"] = "%s/recipes/*/*.bb"%(metadir)
         elif os.path.exists("%s/packages"%(metadir)):
-            os.environ["OE_BBFILES"] = "%s/packages/*/*.bb"%(metadir)
+            os.environ["BBFILES"] = "%s/packages/*/*.bb"%(metadir)
         else:
             print >>sys.stderr, "ERROR: could not find any BitBake recipes"
             return
-        os.environ["BB_ENV_EXTRAWHITE"] = "OE_HOME OE_BBFILES OE_TMPDIR"
+        os.environ["BB_ENV_EXTRAWHITE"] = "BAKERY TMPDIR BBFILES BBPATH BBMASK DL_DIR"
 
         bakery.call(["bitbake"] + self.args)
 
