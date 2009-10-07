@@ -1,5 +1,7 @@
 OE Bakery ToDo:
 
+oe init should support writing a local.conf file if none exists
+
 fix error message when command fails so that nice commandline string is printed
 instead of ugly array/list thingy
 
