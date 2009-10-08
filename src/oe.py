@@ -332,7 +332,6 @@ def do_bake(argv):
   development environment.""")
 
     topdir = cd_topdir()
-    print "OpenEmbedded Bakery",topdir
 
     config = read_config()
 
@@ -358,16 +357,19 @@ def do_bake(argv):
     if not os.path.exists("bitbake/%s/bin"%(bitbake_version)):
         print >>sys.stderr, "ERROR: could not find BitBake version %s"%(bitbake_version)
 
-    print "BitBake", bitbake_version
-
     tmpdir = setup_tmpdir(topdir)
-    print "Temp", tmpdir
 
     os.environ["OE_HOME"] = topdir
     os.environ["OE_TMPDIR"] = tmpdir
     os.environ["BBPATH"] = "%s:%s/openembedded"%(topdir, topdir)
     os.environ["PATH"] = "%s/bitbake/%s/bin:%s"%(topdir, bitbake_version,
                                                  os.environ["PATH"])
+
+    print "OE Bakery Configuration:"
+    print "OE_HOME        =", os.environ["OE_HOME"]
+    print "OE_TMPDIR      =", os.environ["OE_TMPDIR"]
+    print "BBPATH         =", os.environ["BBPATH"]
+    print "BB_VERSION     =", bitbake_version
     
     if (os.path.exists("%s/openembedded/recipes"%topdir) and
         os.path.exists("%s/openembedded/packages"%topdir)):
