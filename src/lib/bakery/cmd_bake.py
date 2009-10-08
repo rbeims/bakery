@@ -94,11 +94,11 @@ class BakeCommand:
 
         metadir = "%s/%s"%(self.topdir, self.metadir)
 
-        os.environ["BAKERY"] = self.topdir
-        os.environ["TMPDIR"] = self.tmpdir
-        os.environ["BBPATH"] = "%s:%s"%(self.topdir, metadir)
+        os.environ["BAKERY_TOPDIR"] = self.topdir
+        os.environ["BAKERY_TMPDIR"] = self.tmpdir
+        os.environ["BAKERY_DL_DIR"] = "%s/ingredients"%(self.topdir)
         os.environ["BBMASK"] = ""
-        os.environ["DL_DIR"] = "%s/ingredients"%(self.topdir)
+        os.environ["BBPATH"] = "%s:%s"%(self.topdir, metadir)
         os.environ["PATH"] = "%s/bitbake/bin:%s"%(
             self.topdir, os.environ["PATH"])
 
@@ -113,7 +113,7 @@ class BakeCommand:
         else:
             print >>sys.stderr, "ERROR: could not find any BitBake recipes"
             return
-        os.environ["BB_ENV_EXTRAWHITE"] = "BAKERY TMPDIR BBFILES BBPATH BBMASK DL_DIR"
+        os.environ["BB_ENV_EXTRAWHITE"] = "BAKERY_TOPDIR BAKERY_TMPDIR BAKERY_DL_DIR BBMASK BBPATH BBFILES"
 
         bakery.call(["bitbake"] + self.args)
 
