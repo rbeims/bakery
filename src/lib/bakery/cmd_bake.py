@@ -63,9 +63,6 @@ class BakeCommand:
 
     def run(self):
 
-        print "OE Bakery:", self.topdir
-
-        print "BitBake:  ", self.config.get("bitbake", "version")
         print "BitBake version handling NOT IMPLEMENTED YET"
     
 #    bitbake_min_version = None
@@ -90,15 +87,13 @@ class BakeCommand:
 #        print >>sys.stderr, "ERROR: could not find BitBake version %s"%(bitbake_version)
 
         self.setup_tmpdir()
-        print "Temp dir: ", self.tmpdir
 
         metadir = "%s/%s"%(self.topdir, self.metadir)
 
-        os.environ["BAKERY_TOPDIR"] = self.topdir
-        os.environ["BAKERY_TMPDIR"] = self.tmpdir
-        os.environ["BAKERY_DL_DIR"] = "%s/ingredients"%(self.topdir)
-        os.environ["BBMASK"] = ""
+        os.environ["OE_HOME"] = self.topdir
+        os.environ["OE_TMPDIR"] = self.tmpdir
         os.environ["BBPATH"] = "%s:%s"%(self.topdir, metadir)
+        os.environ["BBMASK"] = ""
         os.environ["PATH"] = "%s/bitbake/bin:%s"%(
             self.topdir, os.environ["PATH"])
 
@@ -113,7 +108,15 @@ class BakeCommand:
         else:
             print >>sys.stderr, "ERROR: could not find any BitBake recipes"
             return
-        os.environ["BB_ENV_EXTRAWHITE"] = "BAKERY_TOPDIR BAKERY_TMPDIR BAKERY_DL_DIR BBMASK BBPATH BBFILES"
+        os.environ["BB_ENV_EXTRAWHITE"] = "OE_HOME OE_TMPDIR BBMASK BBPATH BBFILES"
+
+        print "OE Bakery Configuration:", self.topdir
+        print "OE_HOME        =", os.environ["OE_HOME"]
+        print "OE_TMPDIR      =", os.environ["OE_TMPDIR"]
+        print "BBPATH         =", os.environ["BBPATH"]
+        print "BBFILES        =", os.environ["BBFILES"]
+        print "BBMASK         =", os.environ["BBMASK"]
+        print "BB_VERSION     =", self.config.get("bitbake", "version")
 
         bakery.call(["bitbake"] + self.args)
 
