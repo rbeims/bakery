@@ -1,13 +1,11 @@
-import os, subprocess, socket
-from optparse import OptionParser
-
+import os, subprocess, socket, shutil, optparse
 import bakery
 
 class InitCommand:
 
     def __init__(self, argv):
 
-        parser = OptionParser("""Usage: oe init [options]
+        parser = optparse.OptionParser("""Usage: oe init [options]
 
   Setup OE Bakery development environment in the current directory.""")
 
@@ -24,8 +22,12 @@ class InitCommand:
                           help="clone and configure BitBake repository")
 
         parser.add_option("-m", "--metadata",
-                          action="append_const", dest="what", const="openembedded",
+                          action="append_const", dest="what", const="metadata",
                           help="clone and configure metadata repository")
+
+        parser.add_option("-c", "--config",
+                          action="append_const", dest="what", const="config",
+                          help="download local.conf.sample and setup local.conf")
 
         (options, args) = parser.parse_args(argv)
 
@@ -61,6 +63,9 @@ class InitCommand:
 
         if "metadata" in self.options.what:
             self.init_metadata()
+
+        if "config" in self.options.what:
+            self.init_config()
 
         return
 
@@ -121,3 +126,31 @@ class InitCommand:
         os.chdir("..")
 
         return
+
+
+    def init_config(self):
+
+        if not self.config.has_option("config", "url"):
+            return
+        url = self.config.get("config", "url")
+
+        wget_url = scp_url = None
+        if (len(url) > len('scp://')) and (url[:len('scp://')] == 'scp://'):
+            scp_url = url[len('scp://'):]
+        else:
+            wget_url = url
+
+        if self.config.has_option("config", "wget_options"):
+            wget_options = self.config.get("config", "wget_options")
+        else:
+            wget_options = ""
+
+        if not os.path.exists("conf/local.conf.sample"):
+            if wget_url:
+                bakery.call("wget %s -O conf/local.conf.sample %s"%(
+                    wget_options, wget_url))
+            else:
+                bakery.call("scp %s conf/local.conf.sample"%(scp_url))
+
+        if not os.path.exists("conf/local.conf"):
+            shutil.copyfile("conf/local.conf.sample", "conf/local.conf")

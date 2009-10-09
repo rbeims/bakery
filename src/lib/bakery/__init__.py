@@ -100,7 +100,7 @@ def call(cmd, dry_run=False):
         return True
 
     try:
-        subprocess.check_call(cmd, shell=True)
+        subprocess.check_call(cmd, shell=True, stdin=sys.stdin)
     except subprocess.CalledProcessError, e:
         print >>sys.stderr, e
         return False
