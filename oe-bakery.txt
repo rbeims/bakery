@@ -1,0 +1,98 @@
+OpenEmbedded Bakery
+
+Python command
+
+oe setup <conf-file>
+	reads configuration from file
+	copies to conf/oe.conf
+	and checks out bitbake and clones and configures openembedded repository
+	must be executed from top-level directory, with existing conf/oe-setup.xml
+
+oe setup bitbake
+	only do bitbake part of "oe setup"
+
+oe setup openembedded
+	only do openembedded part of "oe setup"
+	could also be made able to re-do setup, ie. adding new/missing remotes
+
+all remaining sub-commands do
+	reads configuration from conf/oe-setup.xml
+	finds it by traversion up, until finding conf/oe-setup.xml
+
+oe downloads|dl ....
+
+oe mirror put <file>*
+	upload specified download file(s) to download mirror
+	if no files are specified, upload all files
+	print warning for all files missing md5 sums
+		S: skip file
+		r: remove file
+		g: generate md5 sum file
+	files already present in repository are compared
+		local md5 sum is checked first, and print warning if it does not match
+			S: skip file
+			f: fix MD5 sum
+			r: remove file
+		if local and remote md5 sums differ, print warning (and MD5 sums) and ask
+			S: skip file
+			p: put local copy to repository
+			g: get repository copy
+
+oe mirror get [file]*
+	download specified files from download repository
+	if file already exists, they are simply overwritten
+
+oe mirror save <bundle>
+	upload list of files to for "bundle" to repository
+	also do compare
+
+oe mirror load [--clean] <bundle>*
+	download all files in the bundle lists specified
+	if --clean is given, remove all other files from local download dir
+	if no bundle is specified, default to last bundle(s) specified (commit or update)
+	support scp, rsync+ssh, and http/https download
+
+oe mirror compare
+	compare local files to copies in download repository,
+	reporting any files that are not identical
+
+oe mirror sync [--bundle=<bundle>]
+	this should not be implemented: use put + save instead
+	bundle sync should be run after a complete build of target image and toolchain(s)
+	this should best be called from cron-job, with a preceeding full
+	"oe bb -cfetch bootstrap-image meta-toolchain blah blahhhh"
+	support rsync+ssh upload
+
+oe bake ....
+	build using bitbake
+	bitbake version is taken from openembedded/.bitbake file
+		which is then tracked by git, and therefore should work
+
+oe status
+	print some kind of status report
+	oe directory
+	current openembedded branch
+	size of openembedded repository
+	size of and revision of bitbake dir
+	currently selected/used bitbake revision/tag/branch
+	size of downloads dir
+	size of tmp dir (with list of sub-dir sizes also)
+	maybe a package arch size display
+		ie. for each package arch, total tmp size, tmp/work size,
+		tmp/staging size
+
+
+
+oe-setup.xml should contain:
+bitbake svn url
+default bitbake branch/tag/revision
+openembedded git server hostname
+openembedded git path
+openembedded git server local hostname regex (optional, defaults to server hostname)
+downloads repository server
+downloads repository path
+for each remote
+	server hostname
+	path
+	server local hostname regex (optional, defaults to server hostname)
+
