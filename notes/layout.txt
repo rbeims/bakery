@@ -1,0 +1,24 @@
+.
+|-- bin
+|	this directory holds the 'oe' binary and any custom
+|	helper programs/scripts needed by it
+|-- lib
+|	this directory holds the python library code needed by
+|	'oe' binary and helpers
+|-- bitbake
+|	this directory holds the bitbake checkout from git.
+|	the 'oe' binary can be asked to checkout a specific branch/tag/revision
+|	or leave it alone (useful when hacking on bitbake)
+|-- conf
+|   |-- local.conf	symlink to file in local.conf.d
+|   |-- site.conf	common config to bitbake/openembedded
+|   |-- oe.conf		config file for 'oe' binary
+|   `-- local.conf.d
+|		local.conf variants
+|-- downloads		local downloads repository
+|-- pstage		local packaged-staging repository
+|-- oelite		OElite meta-data
+|-- openembedded	OpenEmbedded meta-data
+`-- scm			local git/svn/cvs clones
+
+7 directories, 1 file

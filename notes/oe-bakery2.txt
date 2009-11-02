@@ -1,0 +1,24 @@
+oe <command> [options]*
+
+Commands:
+ init		-- setup new OE bakery
+ update		-- update OE bakery data (bitbake and metadata)
+ config		-- choose local.conf configuration file
+ bake [bitbake arguments*]
+		-- build recipe
+ ingredient <action>
+		-- synchronize ingredient files (downloads/sources)
+ prebake <action>
+		-- synchronize prebake files (packaged staging)
+ 
+
+ingredient/prebake actions:
+ put
+ get
+ cmp
+ save [name]	-- save list of ingredient/prebake files, default name=default
+ load [name]	-- load all files from list of ingredient/prebake files, default name=default
+
+
+Get rid of the local_hostname and local_url cruft in oe.conf and just require providing
+seperate oe.conf versions for local and remote use.
