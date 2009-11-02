@@ -7,6 +7,7 @@ def main():
 
 Allowed oe commands are:
   init        Setup new OE Bakery development environment
+  clone       Clone an OE Bakery development environment into a new directory
   update      Update OE Bakery development environment
   config      Choose configuration file
   bake        Build recipe
@@ -32,6 +33,7 @@ specific command."""
             os.path.dirname(os.path.realpath(sys.argv[0])), 'lib'))
     import bakery
     from bakery.cmd_init import InitCommand
+    from bakery.cmd_clone import CloneCommand
     from bakery.cmd_update import UpdateCommand
     from bakery.cmd_bake import BakeCommand
     #from bakery.cmd_ingredient import IngredientCommand
@@ -40,6 +42,10 @@ specific command."""
 
     if sys.argv[1] == "init":
         cmd = InitCommand(sys.argv[2:])
+        return cmd.run()
+
+    elif sys.argv[1] == "clone":
+        cmd = CloneCommand(sys.argv[2:])
         return cmd.run()
 
     topdir = bakery.get_topdir()

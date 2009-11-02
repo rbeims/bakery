@@ -106,3 +106,29 @@ def call(cmd, dry_run=False):
         return False
 
     return True
+
+
+#def fetch_file(file):
+#
+#    colon = file.find(':')
+#
+#    if colon == -1:
+#        print "file is local path"
+#        return shutil.copyfile(self.file, "conf/bakery.ini")
+#
+#    elif file[:colon] in ['http', 'ftp', 'https']:
+#        print "use wget"
+#        return bakery.call("wget -O conf/bakery.ini %s"%(file))
+#
+#    elif self.file[:colon] in ['ssh']:
+#        print "use scp (fall through)"
+#        file = file[colon+3:]
+#
+#    elif file[colon+1:colon+3] == '//':
+#        print "invalid url"
+#        return
+#
+#    print "use scp"
+#    bakery.call("scp %s conf/bakery.ini"%(file))
+#
+#    return
