@@ -1,5 +1,5 @@
 import os, subprocess, socket, shutil, optparse
-import bakery
+import oebakery
 
 class InitCommand:
 
@@ -28,7 +28,7 @@ class InitCommand:
         for arg in args:
             options.what.append(arg)
 
-        config = bakery.read_config()
+        config = oebakery.read_config()
 
         self.options = options
         self.config = config
@@ -53,13 +53,13 @@ class InitCommand:
             print "Skipping clone of bitbake"
     
         else:
-            if not bakery.call("git clone -o %s %s bitbake"%(
+            if not oebakery.call("git clone -o %s %s bitbake"%(
                     self.config.get("bitbake", "origin"),
                     self.config.get("bitbake", "repository"))):
                 return
 
         os.chdir("bitbake")
-        bakery.call("git checkout -q %s"%(
+        oebakery.call("git checkout -q %s"%(
                 self.config.get("bitbake", "version")))
         os.chdir("..")
     
@@ -73,7 +73,7 @@ class InitCommand:
                 self.config.get("metadata", "directory"))
     
         else:
-            if not bakery.call("git clone -o %s %s %s"%(
+            if not oebakery.call("git clone -o %s %s %s"%(
                     self.config.get("metadata", "origin"),
                     self.config.get("metadata", "repository"),
                     self.config.get("metadata", "directory"))):
@@ -93,12 +93,12 @@ class InitCommand:
                     print >>sys.stderr, "Remote %s already created"%(
                         remote_name)
                     continue
-                if bakery.call("git remote add %s %s"%(
+                if oebakery.call("git remote add %s %s"%(
                         remote_name, self.config.get("metadata", option))):
                     update = True
 
         if update:
-            bakery.call("git remote update")
+            oebakery.call("git remote update")
 
         os.chdir("..")
 

@@ -29,16 +29,16 @@ specific command."""
             print usage
             return
 
-    sys.path.insert(0,os.path.join(
-            os.path.dirname(os.path.realpath(sys.argv[0])), 'lib'))
-    import bakery
-    from bakery.cmd_init import InitCommand
-    from bakery.cmd_clone import CloneCommand
-    from bakery.cmd_update import UpdateCommand
-    from bakery.cmd_bake import BakeCommand
-    #from bakery.cmd_ingredient import IngredientCommand
-    #from bakery.cmd_prebake import PrebakeCommand
-    from bakery import misc
+#    sys.path.insert(0,os.path.join(
+#            os.path.dirname(os.path.realpath(sys.argv[0])), 'lib'))
+    import oebakery
+    from oebakery.cmd_init import InitCommand
+    from oebakery.cmd_clone import CloneCommand
+    from oebakery.cmd_update import UpdateCommand
+    from oebakery.cmd_bake import BakeCommand
+    #from oebakery.cmd_ingredient import IngredientCommand
+    #from oebakery.cmd_prebake import PrebakeCommand
+    from oebakery import misc
 
     if sys.argv[1] == "init":
         cmd = InitCommand(sys.argv[2:])
@@ -48,10 +48,10 @@ specific command."""
         cmd = CloneCommand(sys.argv[2:])
         return cmd.run()
 
-    topdir = bakery.get_topdir()
+    topdir = oebakery.get_topdir()
     os.chdir(topdir)
 
-    config = bakery.read_config()
+    config = oebakery.read_config()
 
     if sys.argv[1] == "update":
         cmd = UpdateCommand(config, sys.argv[2:])

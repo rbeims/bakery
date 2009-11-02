@@ -1,5 +1,5 @@
 from __future__ import with_statement # This isn't required in Python 2.6
-import bakery, optparse, ConfigParser, os, re, sys
+import oebakery, optparse, ConfigParser, os, re, sys
 
 class BakeCommand:
 
@@ -15,14 +15,14 @@ class BakeCommand:
 
         self.args = argv
         self.config = config
-        self.topdir = bakery.get_topdir()
+        self.topdir = oebakery.get_topdir()
         self.metadir = config.get("metadata", "directory")
 
         return
 
 
     def setup_tmpdir(self):
-        abi_version = bakery.get_simple_config_line(
+        abi_version = oebakery.get_simple_config_line(
             "%s/conf/abi_version.conf"%(self.metadir), "OELAYOUT_ABI")
         if abi_version == None:
             abi_version = 1
@@ -118,6 +118,6 @@ class BakeCommand:
         print "BBMASK         =", os.environ["BBMASK"]
         print "BB_VERSION     =", self.config.get("bitbake", "version")
 
-        bakery.call(["bitbake"] + self.args)
+        oebakery.call(["bitbake"] + self.args)
 
         return

@@ -1,6 +1,6 @@
 from __future__ import with_statement # This isn't required in Python 2.6
 
-__version__ = "0.0.0"
+__version__ = "0.5"
 
 __all__ = [
 
@@ -118,7 +118,7 @@ def call(cmd, dry_run=False):
 #
 #    elif file[:colon] in ['http', 'ftp', 'https']:
 #        print "use wget"
-#        return bakery.call("wget -O conf/bakery.ini %s"%(file))
+#        return oebakery.call("wget -O conf/bakery.ini %s"%(file))
 #
 #    elif self.file[:colon] in ['ssh']:
 #        print "use scp (fall through)"

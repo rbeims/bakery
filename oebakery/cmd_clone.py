@@ -1,6 +1,6 @@
 import optparse, sys, os
-import bakery
-from bakery.cmd_init import InitCommand
+import oebakery
+from oebakery.cmd_init import InitCommand
 
 class CloneCommand:
 
@@ -37,7 +37,7 @@ Arguments:
 
     def run(self):
 
-        if not bakery.call("git clone %s %s"%(self.repository, self.directory)):
+        if not oebakery.call("git clone %s %s"%(self.repository, self.directory)):
             return
 
         os.chdir(self.directory)

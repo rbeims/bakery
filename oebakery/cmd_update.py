@@ -1,7 +1,7 @@
 import os, subprocess, socket, sys
 import optparse
 
-import bakery
+import oebakery
 
 class UpdateCommand:
 
@@ -67,8 +67,8 @@ class UpdateCommand:
     
         os.chdir(self.config.get("metadata", "directory"))
 
-        bakery.call("git pull")
-        bakery.call("git remote update")
+        oebakery.call("git pull")
+        oebakery.call("git remote update")
 
         os.chdir("..")
 
