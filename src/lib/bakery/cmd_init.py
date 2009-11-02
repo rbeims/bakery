@@ -59,7 +59,7 @@ class InitCommand:
                 return
 
         os.chdir("bitbake")
-        bakery.call("git checkout %s"%(
+        bakery.call("git checkout -q %s"%(
                 self.config.get("bitbake", "version")))
         os.chdir("..")
     
