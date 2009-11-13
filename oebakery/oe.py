@@ -29,8 +29,10 @@ specific command."""
             print usage
             return
 
-#    sys.path.insert(0,os.path.join(
-#            os.path.dirname(os.path.realpath(sys.argv[0])), 'lib'))
+    # hack to be able to run from source directory
+    #sys.path.insert(0,os.path.join(
+    #        os.path.dirname(os.path.realpath(sys.argv[0])), '..'))
+
     import oebakery
     from oebakery.cmd_init import InitCommand
     from oebakery.cmd_clone import CloneCommand
