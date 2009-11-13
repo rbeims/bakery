@@ -27,7 +27,7 @@ def get_current_topdir(dir):
 
 def get_topdir():
 
-    topdir = get_current_topdir(os.getcwd())
+    topdir = get_current_topdir(os.getenv('PWD'))
 
     if not topdir:
         print >>sys.stderr, "ERROR: current directory is not part of an OE Bakery development environment"
