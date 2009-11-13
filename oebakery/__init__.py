@@ -6,11 +6,13 @@ __all__ = [
 
     "get_topdir",
     "read_config",
+    "git_add_remote",
+    "git_add_submodule",
     "call",
 
 ]
 
-import sys, os, subprocess, re, ConfigParser
+import sys, os, subprocess, re, ConfigParser, string
 
 
 def get_current_topdir(dir):
@@ -39,39 +41,12 @@ def get_topdir():
 def read_config():
     config = ConfigParser.SafeConfigParser()
 
-    if not config.read("conf/bakery.ini"):
-        print >>sys.stderr, "ERROR: failed to parse %s/conf/bakery.ini"%os.getcwd()
+    if not os.path.exists(".bakery"):
+        print >>sys.stderr, "ERROR: no .bakery in current directory"
         sys.exit(1)
-
-
-    if not config.has_section("bitbake"):
-        print "WARNING: no [bitbake] section in conf/bakery.ini"
-        config.add_section("bitbake")
-    if not config.has_option("bitbake", "repository"):
-        config.set("bitbake", "repository",
-                   "git://git.openembedded.org/bitbake")
-    if not config.has_option("bitbake", "version"):
-        config.set("bitbake", "version", "tags/1.8.12")
-    if not config.has_option("bitbake", "origin"):
-        config.set("bitbake", "origin", "origin")
-
-    if not config.has_section("metadata"):
-        print "WARNING: no [metadata] section in conf/bakery.ini"
-        config.add_section("metadata")
-    if not config.has_option("metadata", "repository"):
-        config.set("metadata", "repository",
-                   "git://git.openembedded.org/openembedded")
-    if not config.has_option("metadata", "directory"):
-        config.set("metadata", "directory", "metadata")
-    if not config.has_option("metadata", "origin"):
-        config.set("metadata", "origin", "origin")
-    for option in config.options("metadata"):
-        if (len(option) > len("remote.") and
-            option[:len("remote.")] == "remote." and
-            option[len("remote."):] in ["bin", "lib", "conf", "bitbake",
-                                        "ingredient", "prebake", "tmp", "scm"]):
-                print >>sys.stderr, "WARNING: Invalid remote option %s"%option
-                config.remote_option("metadata",option)
+    if not config.read(".bakery"):
+        print >>sys.stderr, "ERROR: failed to .bakery"
+        sys.exit(1)
 
     return config
 
@@ -86,6 +61,51 @@ def get_simple_config_line(filename, variable):
                     return match.group(1)
     return None
 
+
+def git_add_remote(name, url):
+
+    if not call("git remote add %s %s"%(name, url)):
+        print 'Failed to add remote "%s"'%name
+        return
+
+    return
+
+
+def git_add_submodule(path, url, remotes=None):
+
+    if os.path.exists(path):
+        print 'Failed to add submodule "%s": path exists'%path
+        return
+
+    parent_dir = os.path.dirname(path)
+    if parent_dir and not os.path.exists(parent_dir):
+        try:
+            os.makedirs(parent_dir)
+        except:
+            print 'Failed to add submodule "%s": makedirs failed'%path
+            return
+    elif parent_dir and not os.path.isdir(parent_dir):
+        print 'Failed to add submodule "%s": %s is not a dir'%(path, parent_dir)
+        return
+
+    if url.find(' ') >= 0:
+        (url, branch) = string.rsplit(url, maxsplit=1)
+        branch = '-b %s '%branch
+    else:
+        branch = ''
+
+    if not call("git submodule add %s%s %s"%(branch, url, path)):
+        print 'Failed to add submodule "%s"'%path
+        return
+
+    if remotes and len(remotes) > 0:
+        pwd = os.environ['PWD']
+        os.chdir(path)
+        for (name, url) in remotes:
+            git_add_remote(name, url)
+        os.chdir(pwd)
+
+    return
     
 def call(cmd, dry_run=False):
     if type(cmd) == type([]):

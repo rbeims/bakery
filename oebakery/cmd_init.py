@@ -9,40 +9,32 @@ class InitCommand:
 
   Setup OE Bakery development environment in the current directory.""")
 
-        parser.add_option("-b", "--bitbake",
-                          action="append_const", dest="what", const="bitbake",
-                          help="clone and configure BitBake repository")
+        (self.options, self.args) = parser.parse_args(argv)
 
-        parser.add_option("-m", "--metadata",
-                          action="append_const", dest="what", const="metadata",
-                          help="clone and configure metadata repository")
-
-        (options, args) = parser.parse_args(argv)
-
-        if options.what == None:
-            if len(args) == 0:
-                options.what = ["bitbake", "metadata", "config"]
-            else:
-                options.what = []
-
-        for arg in args:
-            options.what.append(arg)
-
-        config = oebakery.read_config()
-
-        self.options = options
-        self.config = config
+        self.config = oebakery.read_config()
 
         return
 
 
     def run(self):
 
-        if "bitbake" in self.options.what:
-            self.init_bitbake()
+        if not os.path.exists('.git'):
+            if not oebakery.call("git init"):
+                print 'Failed to initialize git'
+                return
 
-        if "metadata" in self.options.what:
-            self.init_metadata()
+        if self.config.has_section('remotes'):
+            for (name, url) in self.config.items('remotes'):
+                oebakery.git_add_remote(name, url)
+
+        if self.config.has_section('submodules'):
+            for (path, url) in self.config.items('submodules'):
+                section_name = "remotes '%s'"%path
+                if self.config.has_section(section_name):
+                    remotes = self.config.items(section_name)
+                else:
+                    remotes = None
+                oebakery.git_add_submodule(path, url, remotes)
 
         return
 
