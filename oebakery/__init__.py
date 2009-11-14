@@ -89,79 +89,6 @@ def get_simple_config_line(filename, variable):
     return None
 
 
-def git_update_remote(name, url):
-
-    # fetch list of remotes
-
-    # if matching remote is found, do nothing and return
-
-    # if remote is found, but with different url, change url and return
-
-    # if another remote is found with same url, rename it and return
-
-    if not call('git remote add %s %s'%(name, url)):
-        print 'Failed to add remote "%s"'%name
-        return
-
-    return
-
-
-def git_update_submodule(path, url, branch=None, remotes=None, pull=False):
-
-    chdir(get_topdir())
-
-    if not os.path.exists(path):
-
-        parent_dir = os.path.dirname(path)
-        if parent_dir and not os.path.exists(parent_dir):
-            try:
-                print '> mkdir -p',parent_dir
-                os.makedirs(parent_dir)
-            except:
-                print 'Failed to add submodule "%s": makedirs failed'%path
-                return
-        elif parent_dir and not os.path.isdir(parent_dir):
-            print 'Failed to add submodule "%s": %s is not a dir'%(path, parent_dir)
-            return
-
-        if branch:
-            branch_arg = '-b %s '%branch
-        else:
-            branch_arg = ''
-
-        if not call('git submodule add %s%s %s'%(branch_arg, url, path)):
-            print 'Failed to add submodule "%s"'%path
-            return
-
-        branch = None
-
-    chdir(path)
-
-    if branch:
-        if not call('git checkout -b %s remotes/origin/%s'%(branch, branch)):
-            print 'Failed to checkout new branch: %s'%branch
-            return
-
-    if not os.path.exists('.git'):
-        print 'Bad submodule path: %s not found'%(os.path.join(path, '.git'))
-        return
-
-    if not call('git config remote.origin.url %s'%(url), ):
-        print 'Failed to set origin url for "%s": %s'%(path, url)
-
-    if pull and not call('git pull'):
-        print 'Failed to pull updates to %s'%path
-
-    if remotes and len(remotes) > 0:
-        for (name, url) in remotes:
-            git_update_remote(name, url)
-
-    if pull and not call('git remote update --prune'):
-        print 'Failed to update remotes for %s'%path
-
-    return
-
-    
 def call(cmd, dir=None, quiet=False):
 
     if type(cmd) == type([]):
@@ -197,7 +124,7 @@ def call(cmd, dir=None, quiet=False):
 
 
 def chdir(dir, quiet=False):
-    if os.path.abspath(dir) == os.path.abspath(os.getcwd()):
+    if os.path.realpath(os.path.normpath(dir)) == os.path.normpath(os.getcwd()):
         return
 
     if not quiet:

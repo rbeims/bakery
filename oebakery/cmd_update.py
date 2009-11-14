@@ -33,7 +33,7 @@ class UpdateCommand:
 
         if self.config.has_section('remotes'):
             for (name, url) in self.config.items('remotes'):
-                oebakery.git_update_remote(name, url)
+                git_update_remote(name, url)
 
         if self.options.pull and not oebakery.call('git remote update --prune'):
             print 'Failed to update remotes for main repository'
@@ -58,7 +58,113 @@ class UpdateCommand:
                 else:
                     remotes = None
 
-                oebakery.git_update_submodule(path, url, branch, remotes,
+                git_update_submodule(path, url, branch, remotes,
                                               self.options.pull)
 
         return
+
+
+def git_update_remote(name, url):
+
+    # fetch list of remotes
+    remotes_list = oebakery.call('git remote -v', quiet=True).split('\n')
+    remotes = {}
+    for remote in remotes_list:
+        if '\t' in remote:
+            (iter_name, iter_url) = string.split(remote, '\t', maxsplit=1)
+            remotes[iter_name] = iter_url
+
+    # if matching remote is found, do nothing and return
+    if remotes.has_key(name) and remotes[name] == url:
+        return
+
+    # if remote is found, but with different url, change url and return
+    if remotes.has_key(name):
+        oebakery.call('git config remote.%s.url %s'%(name, url))
+        return
+
+    # if another remote is found with same url, rename it and return
+    	# generally seems like a bad idea, so let's not do that...
+
+    if not oebakery.call('git remote add %s %s'%(name, url)):
+        print 'Failed to add remote "%s"'%name
+        return
+
+    return
+
+
+def git_update_submodule(path, url, branch=None, remotes=None, pull=False):
+
+    oebakery.chdir(oebakery.get_topdir())
+
+    if not os.path.exists(path):
+
+        parent_dir = os.path.dirname(path)
+        if parent_dir and not os.path.exists(parent_dir):
+            try:
+                print '> mkdir -p',parent_dir
+                os.makedirs(parent_dir)
+            except:
+                print 'Failed to add submodule "%s": makedirs failed'%path
+                return
+        elif parent_dir and not os.path.isdir(parent_dir):
+            print 'Failed to add submodule "%s": %s is not a dir'%(path, parent_dir)
+            return
+
+        if branch:
+            branch_arg = '-b %s '%branch
+        else:
+            branch_arg = ''
+
+        if not oebakery.call('git submodule add %s%s %s'%(branch_arg, url, path)):
+            print 'Failed to add submodule "%s"'%path
+            return
+
+        if not oebakery.call('git submodule update --init -- %s'%(path)):
+            print 'Failed to clone and checkout submodule "%s"'%path
+            return
+
+    oebakery.chdir(path)
+
+    if not branch:
+        branch = 'master'
+
+    if branch:
+        with open(os.path.join('.git', 'HEAD')) as headfile:
+            head = headfile.readline().strip()
+
+        if head == 'ref: refs/heads/%s'%branch:
+            pass
+
+        elif not os.path.exists('.git%srefs%sheads%s%s'%(
+                os.path.sep, os.path.sep, os.path.sep, branch)):
+            if not oebakery.call('git checkout -t -b %s remotes/origin/%s'%(branch, branch)):
+                print 'Failed to checkout new branch: %s'%branch
+                return
+
+        else:
+            if not oebakery.call('git checkout %s'%branch):
+                print 'Failed to checkout new branch: %s'%branch
+                return
+
+    if not os.path.exists('.git'):
+        print 'Bad submodule path: %s not found'%(os.path.join(path, '.git'))
+        return
+
+    current_url = oebakery.call('git config --get remote.origin.url',
+                                quiet=True).strip()
+    if url != current_url:
+        if not oebakery.call('git config remote.origin.url %s'%(url)):
+            print 'Failed to set origin url for "%s": %s'%(path, url)
+
+    if pull and not oebakery.call('git pull'):
+        print 'Failed to pull updates to %s'%path
+
+    if remotes and len(remotes) > 0:
+        for (name, url) in remotes:
+            git_update_remote(name, url)
+
+    if pull and not oebakery.call('git remote update --prune'):
+        print 'Failed to update remotes for %s'%path
+
+    return
