@@ -39,7 +39,7 @@ class UpdateCommand:
             print 'Failed to update remotes for main repository'
 
         if os.path.exists('.gitmodules'):
-            if not oebakery.call('git submodule update --init'):
+            if not oebakery.call('git submodule update'):
                 print 'Failed to update git submodules'
                 return
 
@@ -116,6 +116,7 @@ def git_update_submodule(path, url, version=None, remotes=None, pull=False):
             print 'Failed to add submodule "%s"'%path
             return
 
+    if not os.path.exists(os.path.join(path, '.git')):
         if not oebakery.call('git submodule update --init -- %s'%(path)):
             print 'Failed to clone submodule "%s"'%path
             return
