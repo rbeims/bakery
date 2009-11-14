@@ -40,6 +40,9 @@ Arguments:
         if not oebakery.call('git clone %s %s'%(self.repository, self.directory)):
             return
 
+        if not oebakery.call('git config push.default tracking'):
+            print 'Failed to set push.default = tracking'
+
         topdir = oebakery.set_topdir(self.directory)
         oebakery.chdir(self.directory)
 
