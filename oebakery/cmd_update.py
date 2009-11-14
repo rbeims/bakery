@@ -1,75 +1,64 @@
-import os, subprocess, socket, sys
+import os, subprocess, socket, sys, string
 import optparse
 
 import oebakery
 
 class UpdateCommand:
 
-    def __init__(self, config, argv):
+    def __init__(self, config, argv=None):
 
         parser = optparse.OptionParser("""Usage: oe update [options]
 
   Update OE Bakery development environment in the current directory.""")
 
-        parser.add_option("-b", "--bitbake",
-                          action="append_const", dest="what", const="bitbake",
-                          help="update BitBake repository")
+        parser.add_option("-p", "--pull",
+                          action="store_true", dest="pull", default=False,
+                          help="pull from remote repositories")
 
-        parser.add_option("-m", "--metadata",
-                          action="append_const", dest="what", const="metadata",
-                          help="update metadata repository")
-
-        (options, args) = parser.parse_args(argv)
-
-        if options.what == None:
-            if len(args) == 0:
-                options.what = ["bitbake", "metadata"]
-            else:
-                options.what = []
-
-        for arg in args:
-            options.what.append(arg)
+        (self.options, self.args) = parser.parse_args(argv)
 
         self.config = config
-        self.options = options
 
         return
 
 
     def run(self):
 
-        if "bitbake" in self.options.what:
-            self.update_bitbake()
-
-        if "metadata" in self.options.what:
-            self.update_metadata()
-
-        return
-
-
-    def update_bitbake(self):
-
-        print >>sys.stderr, "INFO: bitbake update not implemented yet"
-        return
-    
-        if not os.path.exists("bitbake"):
-            print >>sys.stderr, "ERROR: bitbake not found!"
+        if not os.path.exists('.git'):
+            print 'Aiee!  This is not a git repository!!'
             return
-    
-        return
 
+        if self.options.pull and not oebakery.call('git pull'):
+            print 'Failed to pull updates to main repository'
 
-    def update_metadata(self):
-    
-        if not os.path.exists(self.config.get("metadata", "directory")):
-            print >>sys.stderr, "ERROR: metadata directory not found: %s"%(
-                self.config.get("metadata", "directory"))
-    
-        os.chdir(self.config.get("metadata", "directory"))
+        if self.config.has_section('remotes'):
+            for (name, url) in self.config.items('remotes'):
+                oebakery.git_update_remote(name, url)
 
-        oebakery.call("git pull")
-        oebakery.call("git remote update")
+        if self.options.pull and not oebakery.call('git remote update --prune'):
+            print 'Failed to update remotes for main repository'
 
-        os.chdir("..")
+        if os.path.exists('.gitmodules'):
+            if not oebakery.call('git submodule update --init'):
+                print 'Failed to update git submodules'
+                return
+
+        if self.config.has_section('submodules'):
+
+            for (path, url) in self.config.items('submodules'):
+
+                if url.find(' ') >= 0:
+                    (url, branch) = string.rsplit(url, maxsplit=1)
+                else:
+                    branch = None
+
+                section_name = 'remotes "%s"'%path
+                if self.config.has_section(section_name):
+                    remotes = self.config.items(section_name)
+                else:
+                    remotes = None
+
+                oebakery.git_update_submodule(path, url, branch, remotes,
+                                              self.options.pull)
 
         return

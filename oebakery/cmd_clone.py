@@ -17,9 +17,9 @@ Arguments:
         (options, args) = parser.parse_args(argv)
 
         if len(args) < 1:
-            parser.error("too few arguments")
+            parser.error('too few arguments')
         if len(args) > 2:
-            parser.error("too many arguments")
+            parser.error('too many arguments')
 
         self.repository = args[0]
 
@@ -37,10 +37,11 @@ Arguments:
 
     def run(self):
 
-        if not oebakery.call("git clone %s %s"%(self.repository, self.directory)):
+        if not oebakery.call('git clone %s %s'%(self.repository, self.directory)):
             return
 
-        os.chdir(self.directory)
+        topdir = oebakery.set_topdir(self.directory)
+        oebakery.chdir(self.directory)
 
         self.init_cmd = InitCommand(argv=[])
 
