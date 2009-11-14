@@ -75,6 +75,11 @@ def read_config():
         print >>sys.stderr, 'ERROR: failed to read %s'%inifile
         sys.exit(1)
 
+    if not config.has_section('tmp'):
+        config.add_section('tmp')
+    if not config.has_option('tmp', 'tmpdir'):
+        config.set('tmp', 'tmpdir', 'tmp')
+
     return config
 
 

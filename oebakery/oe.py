@@ -37,6 +37,7 @@ specific command."""
     from oebakery.cmd_init import InitCommand
     from oebakery.cmd_clone import CloneCommand
     from oebakery.cmd_update import UpdateCommand
+    from oebakery.cmd_tmp import TmpCommand
     from oebakery.cmd_bake import BakeCommand
     #from oebakery.cmd_ingredient import IngredientCommand
     #from oebakery.cmd_prebake import PrebakeCommand
@@ -58,6 +59,9 @@ specific command."""
 
     if sys.argv[1] == "update":
         cmd = UpdateCommand(config, sys.argv[2:])
+
+    elif sys.argv[1] == "tmp":
+        cmd = TmpCommand(config, sys.argv[2:])
 
     elif sys.argv[1] == "bake":
         cmd = BakeCommand(config, sys.argv[2:])
