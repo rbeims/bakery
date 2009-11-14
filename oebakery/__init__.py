@@ -79,6 +79,15 @@ def read_config():
         config.add_section('tmp')
     if not config.has_option('tmp', 'tmpdir'):
         config.set('tmp', 'tmpdir', 'tmp')
+    if not config.has_option('tmp', 'default'):
+        config.set('tmp', 'default', 'default')
+
+    if not config.has_section('bitbake'):
+        config.add_section('bitbake')
+    if not config.has_option('bitbake', 'path'):
+        config.set('bitbake', 'path', 'bitbake/bin')
+    if not config.has_option('bitbake', 'bbpath'):
+        config.set('bitbake', 'bbpath', '')
 
     return config
 

@@ -4,7 +4,7 @@ from oebakery.cmd_update import UpdateCommand
 
 class InitCommand:
 
-    def __init__(self, argv=None):
+    def __init__(self, argv=[]):
 
         parser = optparse.OptionParser("""Usage: oe init [options]
 

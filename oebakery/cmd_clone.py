@@ -46,7 +46,7 @@ Arguments:
         topdir = oebakery.set_topdir(self.directory)
         oebakery.chdir(self.directory)
 
-        self.init_cmd = InitCommand(argv=[])
+        self.init_cmd = InitCommand()
 
         return self.init_cmd.run()
 

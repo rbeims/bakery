@@ -52,6 +52,22 @@ Manage OpenEmbedded TMPDIR's
         return
 
 
+    def get_tmpdir(self):
+
+        if os.path.exists(self.tmpdir):
+            return os.path.realpath(self.tmpdir)
+
+        if self.basedir:
+            if not os.path.exists(self.basedir):
+                os.makedirs(self.basedir)
+            self.create_tmp_area(self.config.get('tmp', 'default'))
+
+        else:
+            os.makedirs(self.tmpdir)
+
+        return os.path.realpath(self.tmpdir)
+
+
     def run(self):
 
         if not self.basedir:

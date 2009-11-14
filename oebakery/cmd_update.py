@@ -5,7 +5,7 @@ import oebakery
 
 class UpdateCommand:
 
-    def __init__(self, config, argv=None):
+    def __init__(self, config, argv=[]):
 
         parser = optparse.OptionParser("""Usage: oe update [options]
 
