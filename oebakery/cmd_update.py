@@ -48,9 +48,9 @@ class UpdateCommand:
             for (path, url) in self.config.items('submodules'):
 
                 if url.find(' ') >= 0:
-                    (url, branch) = string.rsplit(url, maxsplit=1)
+                    (url, version) = string.rsplit(url, maxsplit=1)
                 else:
-                    branch = None
+                    version = None
 
                 section_name = 'remotes "%s"'%path
                 if self.config.has_section(section_name):
@@ -58,7 +58,7 @@ class UpdateCommand:
                 else:
                     remotes = None
 
-                git_update_submodule(path, url, branch, remotes,
+                git_update_submodule(path, url, version, remotes,
                                               self.options.pull)
 
         return
@@ -93,7 +93,7 @@ def git_update_remote(name, url):
     return
 
 
-def git_update_submodule(path, url, branch=None, remotes=None, pull=False):
+def git_update_submodule(path, url, version=None, remotes=None, pull=False):
 
     oebakery.chdir(oebakery.get_topdir())
 
@@ -108,44 +108,19 @@ def git_update_submodule(path, url, branch=None, remotes=None, pull=False):
                 print 'Failed to add submodule "%s": makedirs failed'%path
                 return
         elif parent_dir and not os.path.isdir(parent_dir):
-            print 'Failed to add submodule "%s": %s is not a dir'%(path, parent_dir)
+            print 'Failed to add submodule "%s": %s is not a dir'%(
+                path, parent_dir)
             return
 
-        if branch:
-            branch_arg = '-b %s '%branch
-        else:
-            branch_arg = ''
-
-        if not oebakery.call('git submodule add %s%s %s'%(branch_arg, url, path)):
+        if not oebakery.call('git submodule add %s %s'%(url, path)):
             print 'Failed to add submodule "%s"'%path
             return
 
         if not oebakery.call('git submodule update --init -- %s'%(path)):
-            print 'Failed to clone and checkout submodule "%s"'%path
+            print 'Failed to clone submodule "%s"'%path
             return
 
     oebakery.chdir(path)
-
-    if not branch:
-        branch = 'master'
-
-    if branch:
-        with open(os.path.join('.git', 'HEAD')) as headfile:
-            head = headfile.readline().strip()
-
-        if head == 'ref: refs/heads/%s'%branch:
-            pass
-
-        elif not os.path.exists('.git%srefs%sheads%s%s'%(
-                os.path.sep, os.path.sep, os.path.sep, branch)):
-            if not oebakery.call('git checkout -t -b %s remotes/origin/%s'%(branch, branch)):
-                print 'Failed to checkout new branch: %s'%branch
-                return
-
-        else:
-            if not oebakery.call('git checkout %s'%branch):
-                print 'Failed to checkout new branch: %s'%branch
-                return
 
     if not os.path.exists('.git'):
         print 'Bad submodule path: %s not found'%(os.path.join(path, '.git'))
@@ -157,8 +132,36 @@ def git_update_submodule(path, url, branch=None, remotes=None, pull=False):
         if not oebakery.call('git config remote.origin.url %s'%(url)):
             print 'Failed to set origin url for "%s": %s'%(path, url)
 
-    if pull and not oebakery.call('git pull'):
-        print 'Failed to pull updates to %s'%path
+    if pull and not oebakery.call('git fetch origin'):
+        print 'Failed to fetch updates from origin for "%s"'%path
+
+    if version:
+        head_descr = oebakery.call('git describe --all HEAD', quiet=True)
+
+        # check if version is a valid committish object name, and if so,
+        # do a checkout
+        descr = oebakery.call('git describe --all %s'%version, quiet=True)
+        if descr:
+            if descr == head_descr:
+                # current HEAD is already at the requested version
+                pass
+            elif not oebakery.call('git checkout %s'%version):
+                print 'Failed to checkout revision', version
+                return
+
+        else:
+            # check if version is a remote branch, and if so, do a checkout
+            branch = 'remotes/origin/%s'%version
+            descr = oebakery.call('git describe --all %s'%branch, quiet=True)
+            if descr:
+                if descr == head_descr:
+                    # current HEAD is already at the requested branch head
+                    pass
+                elif not oebakery.call('git checkout %s'%branch):
+                    print 'Failed to checkout branch', version
+                    return
+            else:
+                print 'Invalid version for submodule "%s": %s'%(path, version)
 
     if remotes and len(remotes) > 0:
         for (name, url) in remotes:
