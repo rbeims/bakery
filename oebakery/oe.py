@@ -17,7 +17,7 @@ Allowed oe commands are:
 See 'oe <command> -h' or 'oe help <command> for more information on a
 specific command."""
 
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 2 or (len(sys.argv) == 2 and sys.argv[1] == '-h'):
         print usage
         return
 
