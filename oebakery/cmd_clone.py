@@ -47,6 +47,6 @@ Arguments:
         if not oebakery.call('git config push.default tracking'):
             print 'Failed to set push.default = tracking'
 
-        self.update_cmd = UpdateCommand()
+        self.update_cmd = UpdateCommand(oebakery.read_config())
         return self.update_cmd.run()
 

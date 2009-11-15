@@ -39,7 +39,7 @@ class UpdateCommand:
             print 'Failed to update remotes for main repository'
 
         if os.path.exists('.gitmodules'):
-            if not oebakery.call('git submodule update'):
+            if not oebakery.call('git submodule update --init'):
                 print 'Failed to update git submodules'
                 return
 
@@ -97,73 +97,61 @@ def git_update_submodule(path, url, version=None, remotes=None, pull=False):
 
     oebakery.chdir(oebakery.get_topdir())
 
-    if not os.path.exists(path):
-
-        # create parent dir(s)
-        parent_dir = os.path.dirname(path)
-        if parent_dir and not os.path.exists(parent_dir):
-            try:
-                print '> mkdir -p',parent_dir
-                os.makedirs(parent_dir)
-            except:
-                print 'Failed to add submodule "%s": makedirs failed'%path
-                return
-        elif parent_dir and not os.path.isdir(parent_dir):
-            print 'Failed to add submodule "%s": %s is not a dir'%(
-                path, parent_dir)
-            return
-
-        if not oebakery.call('git submodule add %s %s'%(url, path)):
-            print 'Failed to add submodule "%s"'%path
-            return
-
+    pristine_clone = False
     if not os.path.exists(os.path.join(path, '.git')):
-        if not oebakery.call('git submodule update --init -- %s'%(path)):
-            print 'Failed to clone submodule "%s"'%path
-            return
+
+        # git clone
+        if version:
+            if not oebakery.call('git clone -n %s %s'%(url, path)):
+                print 'Failed to clone submodule %s'%path
+                return
+            pristine_clone = True
+        else:
+            if not oebakery.call('git clone %s %s'%(url, path)):
+                print 'Failed to clone submodule %s'%path
+                return
 
     oebakery.chdir(path)
 
-    if not os.path.exists('.git'):
-        print 'Bad submodule path: %s not found'%(os.path.join(path, '.git'))
-        return
-
+    # update origin url if necessary
     current_url = oebakery.call('git config --get remote.origin.url',
                                 quiet=True).strip()
     if url != current_url:
         if not oebakery.call('git config remote.origin.url %s'%(url)):
             print 'Failed to set origin url for "%s": %s'%(path, url)
 
+    # fetch updates from origin
     if pull and not oebakery.call('git fetch origin'):
         print 'Failed to fetch updates from origin for "%s"'%path
 
     if version:
-        head_descr = oebakery.call('git describe --all HEAD', quiet=True)
 
-        # check if version is a valid committish object name, and if so,
-        # do a checkout
+        # check if version is a valid commit or remote branch name
+        commit = branch = False
         descr = oebakery.call('git describe --all %s'%version, quiet=True)
         if descr:
-            if descr == head_descr:
-                # current HEAD is already at the requested version
-                pass
-            elif not oebakery.call('git checkout %s'%version):
-                print 'Failed to checkout revision', version
-                return
-
+            commit = descr
         else:
-            # check if version is a remote branch, and if so, do a checkout
             branch = 'remotes/origin/%s'%version
-            descr = oebakery.call('git describe --all %s'%branch, quiet=True)
-            if descr:
-                if descr == head_descr:
-                    # current HEAD is already at the requested branch head
-                    pass
-                elif not oebakery.call('git checkout %s'%branch):
-                    print 'Failed to checkout branch', version
-                    return
+            if oebakery.call('git describe --all %s'%branch, quiet=True):
+                pass
             else:
-                print 'Invalid version for submodule "%s": %s'%(path, version)
+                print 'Error: invalid version for submodule %s: %s'%(
+                    path, version)
+                return
+    
+        # create and checkout local branch tracking the requested remote branch
+        if branch:
+            if not oebakery.call('git checkout -t %s'%(branch)):
+                print 'Failed to create local tracking branch for', branch
+                return
+    
+        # checkout the requested version (specific commit, or local branch)
+        elif (pristine_clone or
+              commit != oebakery.call('git describe --all HEAD', quiet=True)):
+            if not oebakery.call('git checkout %s'%version):
+                print 'Failed to checkout', version
+                return
 
     if remotes and len(remotes) > 0:
         for (name, url) in remotes:
