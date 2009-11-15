@@ -9,8 +9,8 @@ Allowed oe commands are:
   init        Setup new OE Bakery development environment
   clone       Clone an OE Bakery development environment into a new directory
   update      Update OE Bakery development environment
-  config      Choose configuration file
-  bake        Build recipe
+  tmp         Manage TMPDIR directories
+  bake        Build recipe (call bitbake)
   ingredient  Manage ingredient (downloaded sources) files
   prebake     Manage prebake (packaged staging) files
 

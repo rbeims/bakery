@@ -1,6 +1,6 @@
 import optparse, sys, os
 import oebakery
-from oebakery.cmd_init import InitCommand
+from oebakery.cmd_update import UpdateCommand
 
 class CloneCommand:
 
@@ -37,16 +37,16 @@ Arguments:
 
     def run(self):
 
-        if not oebakery.call('git clone %s %s'%(self.repository, self.directory)):
+        if not oebakery.call('git clone %s %s'%(self.repository,
+                                                self.directory)):
             return
-
-        if not oebakery.call('git config push.default tracking'):
-            print 'Failed to set push.default = tracking'
 
         topdir = oebakery.set_topdir(self.directory)
         oebakery.chdir(self.directory)
 
-        self.init_cmd = InitCommand()
+        if not oebakery.call('git config push.default tracking'):
+            print 'Failed to set push.default = tracking'
 
-        return self.init_cmd.run()
+        self.update_cmd = UpdateCommand()
+        return self.update_cmd.run()
 

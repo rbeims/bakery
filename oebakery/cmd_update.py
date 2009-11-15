@@ -99,6 +99,7 @@ def git_update_submodule(path, url, version=None, remotes=None, pull=False):
 
     if not os.path.exists(path):
 
+        # create parent dir(s)
         parent_dir = os.path.dirname(path)
         if parent_dir and not os.path.exists(parent_dir):
             try:
