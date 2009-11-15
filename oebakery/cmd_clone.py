@@ -47,6 +47,10 @@ Arguments:
         if not oebakery.call('git config push.default tracking'):
             print 'Failed to set push.default = tracking'
 
-        self.update_cmd = UpdateCommand(oebakery.read_config())
+        config = oebakery.read_config()
+
+        oebakery.copy_local_conf_sample(config.get('bitbake', 'confdir'))
+
+        self.update_cmd = UpdateCommand(config)
         return self.update_cmd.run()
 

@@ -14,7 +14,7 @@ __all__ = [
 
 ]
 
-import sys, os, subprocess, re, ConfigParser, string
+import sys, os, subprocess, re, ConfigParser, string, shutil
 
 
 TOPDIR = None
@@ -88,6 +88,8 @@ def read_config():
         config.set('bitbake', 'path', 'bitbake/bin')
     if not config.has_option('bitbake', 'bbpath'):
         config.set('bitbake', 'bbpath', '')
+    if not config.has_option('bitbake', 'confdir'):
+        config.set('bitbake', 'confdir', 'conf')
 
     return config
 
@@ -147,6 +149,18 @@ def chdir(dir, quiet=False):
     os.chdir(dir)
 
     return
+
+
+def copy_local_conf_sample(confdir):
+    
+    config = os.path.join(confdir, 'local.conf')
+    sample = os.path.join(confdir, 'local.conf.sample')
+    if not os.path.exists(config) and os.path.exists(sample):
+        try:
+            print '> cp %s %s'%(sample, config)
+            shutil.copyfile(sample, config)
+        except:
+            print 'Warning: failed to write config file:', config
 
 
 #def fetch_file(file):

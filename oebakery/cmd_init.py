@@ -30,7 +30,7 @@ class InitCommand:
             if not oebakery.call('git config push.default tracking'):
                 print 'Failed to set push.default = tracking'
 
+        oebakery.copy_local_conf_sample(self.config.get('bitbake', 'confdir'))
+
         self.update_cmd = UpdateCommand(self.config)
-
         return self.update_cmd.run()
-
