@@ -1,0 +1,52 @@
+OE Bakery - OpenEmbedded development environment
+--------------------------------------------------------------
+
+This is a tool for managing OpenEmbedded development environments.
+
+The goal is to offer a tool which help OpenEmbedded developers
+* share OpenEmbedded development environment setups with other
+  developers, and
+* make it easier to work with multiple OpenEmbedded development
+  environments.
+
+Example:
+
+$ oe clone git://dev.doredevelopment.dk/bakery.git bakery
+
+	This clones the bakery.git repository, which contains the
+	development environment setup, clones all additional required
+	repositories and places them at the desired locations in
+	the development environment, adds any additional git remote
+	repository references, and checks out specific versions
+	or branches for the repositories if required.
+
+$ cd bakery
+$ oe bake bootstrap-image meta-toolchain
+
+	This sets up the required shell environment variables
+	needed for BitBake, and calls bitbake with the remaining
+	arguments.
+	The TMPDIR variable is set properly, with all symlinks
+	dereferenced.
+
+$ oe update --pull
+
+	This pulls the remote repositories for updates to the
+	development environment, and the upstream tracked branches.
+	This could fx. cause a specific version of BitBake to
+	be checked out, additional repositories checked out,
+	and remote references added and changed.
+
+
+The configuration required for this is an INI file, which could
+look something like the following:
+
+[remotes]
+origin = git://dev.doredevelopment.dk/bakery.git
+
+[submodules]
+bitbake = git://git.openembedded.net/bitbake.git tags/1.8.18
+openembedded = git://foo.bar/openembedded.git stable/2009
+
+[remotes "openembedded"]
+oe = git://git.openembedded.net/openembedded.git

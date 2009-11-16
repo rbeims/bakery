@@ -1,6 +1,14 @@
 OE Bakery ToDo:
 
-oe init should support writing a local.conf file if none exists
+add stuff to .gitignore for
+* submodules
+* tmp dirs
+-> NO!  should be part of project repository's .gitignore!
+
+generate debian pacakges using
+* stdeb (http://github.com/astraw/stdeb) for building debian source package
+* https://launchpad.net/~esben-haabendal/+archive/oebakery for
+  personal ppa archive
 
 fix error message when command fails so that nice commandline string is printed
 instead of ugly array/list thingy

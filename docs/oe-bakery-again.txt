@@ -1,0 +1,25 @@
+new oe subcommand: oe tmp
+
+* manage named tmp/ areas
+* cannot control by branch, because of multiple collections
+* tmp specific by area and distro
+* tmp symlink setup to tmp.d/area/distro by oe bake,
+  or perhaps use $DISTRO in TMP bitbake var
+
+
+things that might change in a "project":
+
+1. submodule might be removed
+-> don't remove it, user must manually do this
+
+2. remote removed
+-> don't remove it, user must manually remove it
+
+3. remote changed name
+-> git remote rename <old> <new>
+
+4. remote changed url
+-> change url automatically
+
+5. submodule added
+-> git add submodule ...
