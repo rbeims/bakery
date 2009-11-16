@@ -3,7 +3,7 @@ import oebakery, optparse, ConfigParser, os, re, sys, shutil
 
 class TmpCommand:
 
-    def __init__(self, config, argv):
+    def __init__(self, config, argv=[]):
 
         parser = optparse.OptionParser("""Usage: oe tmp [option] [name]*
 
