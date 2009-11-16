@@ -8,8 +8,6 @@ __all__ = [
     'locate_topdir',
     'get_topdir',
     'read_config',
-    'git_update_remote',
-    'git_update_submodule',
     'call',
 
 ]
@@ -105,7 +103,7 @@ def get_simple_config_line(filename, variable):
     return None
 
 
-def call(cmd, dir=None, quiet=False):
+def call(cmd, dir=None, quiet=False, success_returncode=0):
 
     if type(cmd) == type([]):
         cmdlist = cmd
@@ -126,11 +124,12 @@ def call(cmd, dir=None, quiet=False):
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.STDOUT)
         output = process.communicate()[0]
-        if process.returncode == 0:
+        if process.returncode == success_returncode:
             retval = output
+
     else:
         returncode = subprocess.call(cmd, shell=True, stdin=sys.stdin)
-        if returncode == 0:
+        if returncode == success_returncode:
             retval = True
 
     if dir:
