@@ -118,7 +118,10 @@ Manage OpenEmbedded TMPDIR's
         if os.path.islink(self.tmpdir):
             os.remove(self.tmpdir)
 
-        arealink = os.path.relpath(areadir, os.path.dirname(self.tmpdir))
+        try:
+            arealink = os.path.relpath(areadir, os.path.dirname(self.tmpdir))
+        except AttributeError:
+            arealink = areadir
         os.symlink(arealink, self.tmpdir)
 
         return
