@@ -4,7 +4,7 @@ use_setuptools()
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.8'
+version = '0.9'
 
 setup(name='OEBakery',
       version=version,
