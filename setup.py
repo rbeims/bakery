@@ -4,7 +4,7 @@ use_setuptools()
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.5'
+version = '0.8'
 
 setup(name='OEBakery',
       version=version,
@@ -22,9 +22,6 @@ OE-Bakery - A tool for making working with BitBake and OpenEmbedded easier""",
       install_requires=[
           # -*- Extra requirements: -*-
       ],
-#      entry_points="""
-#      # -*- Entry points: -*-
-#      """,
       url="http://dev.doredevelopment.dk/wiki/OpenEmbeddedBakery",
       entry_points = {
         'console_scripts': [

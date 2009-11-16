@@ -9,15 +9,15 @@ Allowed oe commands are:
   init        Setup new OE Bakery development environment
   clone       Clone an OE Bakery development environment into a new directory
   update      Update OE Bakery development environment
-  config      Choose configuration file
-  bake        Build recipe
+  tmp         Manage TMPDIR directories
+  bake        Build recipe (call bitbake)
   ingredient  Manage ingredient (downloaded sources) files
   prebake     Manage prebake (packaged staging) files
 
 See 'oe <command> -h' or 'oe help <command> for more information on a
 specific command."""
 
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 2 or (len(sys.argv) == 2 and sys.argv[1] == '-h'):
         print usage
         return
 
@@ -30,13 +30,14 @@ specific command."""
             return
 
     # hack to be able to run from source directory
-    #sys.path.insert(0,os.path.join(
-    #        os.path.dirname(os.path.realpath(sys.argv[0])), '..'))
+    sys.path.insert(
+        0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
     import oebakery
     from oebakery.cmd_init import InitCommand
     from oebakery.cmd_clone import CloneCommand
     from oebakery.cmd_update import UpdateCommand
+    from oebakery.cmd_tmp import TmpCommand
     from oebakery.cmd_bake import BakeCommand
     #from oebakery.cmd_ingredient import IngredientCommand
     #from oebakery.cmd_prebake import PrebakeCommand
@@ -50,13 +51,17 @@ specific command."""
         cmd = CloneCommand(sys.argv[2:])
         return cmd.run()
 
-    topdir = oebakery.get_topdir()
-    os.chdir(topdir)
+    topdir = oebakery.locate_topdir()
+    if topdir != os.environ['PWD']:
+        oebakery.chdir(topdir)
 
     config = oebakery.read_config()
 
     if sys.argv[1] == "update":
         cmd = UpdateCommand(config, sys.argv[2:])
+
+    elif sys.argv[1] == "tmp":
+        cmd = TmpCommand(config, sys.argv[2:])
 
     elif sys.argv[1] == "bake":
         cmd = BakeCommand(config, sys.argv[2:])

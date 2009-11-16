@@ -1,0 +1,14 @@
+[remotes]
+deif = ssh://dev.doredevelopment.dk/srv/deif/git/oe-lite/bakery.git
+
+[submodules]
+bitbake = git://git.openembedded.net/bitbake.git 1.8
+meta/core = ssh://dev.doredevelopment.dk/srv/public/git/oe-lite/oe-core.git
+
+[remotes "bitbake"]
+oe-lite = ssh://dev.doredevelopment.dk/srv/public/git/oe-lite/bitbake.git
+
+[remotes "meta/core"]
+oe = git://git.openembedded.net
+deif = ssh://dev.doredevelopment.dk/srv/deif/git/oe-lite/oe-core.git
+focon = ssh://dev.doredevelopment.dk/srv/staff/git/oe-lite-focon/oe-core.git
