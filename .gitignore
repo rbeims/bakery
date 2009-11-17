@@ -2,4 +2,5 @@
 *.pyc
 build
 dist
-OEBakery.egg-info
+oe_bakery.egg-info
+deb_dist
