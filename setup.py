@@ -3,12 +3,16 @@ from ez_setup import use_setuptools
 use_setuptools()
 from setuptools import setup, find_packages
 import sys, os
+try:
+    import stdeb
+except ImportError:
+    print 'Warning: cannot find stdeb module'
 
-version = '0.9'
+version = '0.13'
 
-setup(name='OEBakery',
+setup(name='oe-bakery',
       version=version,
-      description="OE-Bakery - OpenEmbedded Bakery SDK Tool",
+      description="OE-Bakery - OpenEmbedded Development Environment Tool",
       long_description="""\
 OE-Bakery - A tool for making working with BitBake and OpenEmbedded easier""",
       classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
