@@ -36,8 +36,9 @@ class UpdateCommand:
                 git_update_remote(name, url)
 
         if self.options.pull:
-            if not oebakery.call('git remote update', success_returncode=1):
-                print 'Failed to update remotes for main repository'
+            # older git versions return 1 on success, and newer versions 0
+            # so we will just ignore the return code for now
+            oebakery.call('git remote update')
 
         if self.options.pull and self.config.has_section('remotes'):
             for (name, url) in self.config.items('remotes'):
@@ -163,8 +164,9 @@ def git_update_submodule(path, url, version=None, remotes=None, pull=False):
         for (name, url) in remotes:
             git_update_remote(name, url)
 
-    if pull and not oebakery.call('git remote update', success_returncode=1):
-        print 'Failed to update remotes for %s'%path
+    # older git versions return 1 on success, and newer versions 0
+    # so we will just ignore the return code for now
+    oebakery.call('git remote update')
 
     if pull and remotes and len(remotes) > 0:
         for (name, url) in remotes:
