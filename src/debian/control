@@ -1,0 +1,17 @@
+Source: oe-bakery
+Maintainer: Esben Haabendal <eha@doredevelopment.dk>
+Section: python
+Priority: optional
+Build-Depends: python-setuptools (>= 0.6b3), debhelper (>= 7), python-support (>= 0.7.5)
+Standards-Version: 3.8.3
+XS-Python-Version: current
+
+Package: python-oe-bakery
+Architecture: all
+Depends: ${python:Depends}, python-pkg-resources, sed, wget, cvs, subversion, git-core, mercurial, coreutils, unzip, texinfo, libsdl1.2-dev, docbook-utils, gawk, python-pysqlite2, libxml2-utils, xmlto, help2man, diffstat, texi2html, make, gcc, build-essential, g++, bison, flex
+Recommends: ccache, python-psyco
+Suggests: 
+XB-Python-Version: ${python:Versions}
+Provides: ${python:Provides}
+Description: OE-Bakery - OpenEmbedded Development Environment Tool
+ OE-Bakery - A tool for making working with BitBake and OpenEmbedded easier

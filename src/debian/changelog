@@ -1,0 +1,86 @@
+oe-bakery (0.14.2~hardy) hardy; urgency=low
+
+  * hardy build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 19 Nov 2009 12:28:42 +0100
+
+oe-bakery (0.14.2~intrepid) intrepid; urgency=low
+
+  * intrepid build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 19 Nov 2009 12:28:38 +0100
+
+oe-bakery (0.14.2~jaunty) jaunty; urgency=low
+
+  * jaunty build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 19 Nov 2009 12:28:35 +0100
+
+oe-bakery (0.14.2~karmic) karmic; urgency=low
+
+  * karmic build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 19 Nov 2009 12:28:32 +0100
+
+oe-bakery (0.14.2~hardy) hardy; urgency=low
+
+  * hardy build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 19 Nov 2009 12:27:57 +0100
+
+oe-bakery (0.14.2~intrepid) intrepid; urgency=low
+
+  * intrepid build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 19 Nov 2009 12:27:53 +0100
+
+oe-bakery (0.14.2~jaunty) jaunty; urgency=low
+
+  * jaunty build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 19 Nov 2009 12:27:50 +0100
+
+oe-bakery (0.14.2~karmic) karmic; urgency=low
+
+  * karmic build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 19 Nov 2009 12:27:43 +0100
+
+oe-bakery (0.14.2) karmic; urgency=low
+
+  * testing ppa_upload.sh script
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 19 Nov 2009 12:22:44 +0100
+
+oe-bakery (0.14.1~karmic) karmic; urgency=low
+
+  * rebuild to test new source directory layout
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 19 Nov 2009 11:26:15 +0100
+
+oe-bakery (0.14-1~intrepid) intrepid; urgency=low
+
+  * intrepid build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 19 Nov 2009 10:42:15 +0100
+
+oe-bakery (0.14-1~jaunty) jaunty; urgency=low
+
+  * jaunty build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 19 Nov 2009 10:40:49 +0100
+
+oe-bakery (0.14-1~karmic) karmic; urgency=low
+
+  * karmic build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 19 Nov 2009 10:40:05 +0100
+
+oe-bakery (0.14-1~hardy) hardy; urgency=low
+
+  * source package automatically created by stdeb 0.4.2
+  * added depends and recommends for OpenEmbedded dependencies
+  * updated standards version to 3.8.3
+  * hardy build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 19 Nov 2009 10:36:24 +0100

@@ -1,17 +1,24 @@
-OE Bakery - OpenEmbedded development environment
+OE Bakery - OpenEmbedded development environment tool
 --------------------------------------------------------------
 
-This is a tool for managing OpenEmbedded development environments.
+OE Bakery is a tool for managing OpenEmbedded development environments.
+It provides a terse file format for describing a specific
+OpenEmbedded development environment setup, and a simple command-line
+tool for setting up development environments, updating development
+environments according to changes to the setup, and using it
+to develop and build software.
 
 The goal is to offer a tool which help OpenEmbedded developers
-* share OpenEmbedded development environment setups with other
+* easily share OpenEmbedded development environment setups with other
   developers, and
 * make it easier to work with multiple OpenEmbedded development
   environments.
 
 Example:
 
-$ oe clone git://dev.doredevelopment.dk/bakery.git bakery
+Developer needs to work with OpenEmbedded for project 'foobar'.
+
+$ oe clone git://dev.doredevelopment.dk/foobar/bakery.git bakery
 
 	This clones the bakery.git repository, which contains the
 	development environment setup, clones all additional required
