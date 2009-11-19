@@ -148,7 +148,8 @@ def git_update_submodule(path, url, version=None, remotes=None, pull=False):
     
         # create and checkout local branch tracking the requested remote branch
         if branch:
-            if not oebakery.call('git checkout -t %s'%(branch)):
+            if not oebakery.call('git checkout --track -b %s %s'%(
+                    version, branch)):
                 print 'Failed to create local tracking branch for', branch
                 return
     
