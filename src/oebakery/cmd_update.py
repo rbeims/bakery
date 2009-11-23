@@ -222,6 +222,7 @@ def git_update_submodule(path, fetch_url, push_url=None, version=None,
             commit = descr
         else:
             branch = 'remotes/origin/%s'%version
+            oebakery.call('git fetch origin')
             if oebakery.call('git describe --all %s'%branch, quiet=True):
                 pass
             else:
