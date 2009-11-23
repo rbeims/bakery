@@ -1,3 +1,64 @@
+oe-bakery (0.15.1~hardy) hardy; urgency=low
+
+  * hardy build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 23 Nov 2009 22:45:14 +0100
+
+oe-bakery (0.15.1~intrepid) intrepid; urgency=low
+
+  * intrepid build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 23 Nov 2009 22:45:11 +0100
+
+oe-bakery (0.15.1~jaunty) jaunty; urgency=low
+
+  * jaunty build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 23 Nov 2009 22:45:08 +0100
+
+oe-bakery (0.15.1~karmic) karmic; urgency=low
+
+  * karmic build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 23 Nov 2009 22:45:01 +0100
+
+oe-bakery (0.15.1) karmic; urgency=low
+
+  * fetch origin updates before checkin for valid branch
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 23 Nov 2009 22:41:40 +0100
+
+oe-bakery (0.15~hardy) hardy; urgency=low
+
+  * hardy build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 23 Nov 2009 22:32:09 +0100
+
+oe-bakery (0.15~intrepid) intrepid; urgency=low
+
+  * intrepid build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 23 Nov 2009 22:32:06 +0100
+
+oe-bakery (0.15~jaunty) jaunty; urgency=low
+
+  * jaunty build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 23 Nov 2009 22:32:03 +0100
+
+oe-bakery (0.15~karmic) karmic; urgency=low
+
+  * karmic build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 23 Nov 2009 22:31:54 +0100
+
+oe-bakery (0.15) karmic; urgency=low
+
+  * add handling of push urls, fixing compatibility with git 1.6.4+ and allows
+    configuration of push url different from fetch url
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 23 Nov 2009 22:30:01 +0100
+
 oe-bakery (0.14.2~hardy) hardy; urgency=low
 
   * hardy build
