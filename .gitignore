@@ -2,3 +2,9 @@
 *.pyc
 build
 dist
+oe-bakery_*~*.dsc
+oe-bakery_*~*.tar.gz
+oe-bakery_*~*_source.build
+oe-bakery_*~*_source.changes
+oe-bakery_*~*_source.oe-bakery.upload
+
