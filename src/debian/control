@@ -6,7 +6,7 @@ Build-Depends: python-setuptools (>= 0.6b3), debhelper (>= 7), python-support (>
 Standards-Version: 3.8.3
 XS-Python-Version: current
 
-Package: python-oe-bakery
+Package: oe-bakery
 Architecture: all
 Depends: ${python:Depends}, python-pkg-resources, sed, wget, cvs, subversion, git-core, mercurial, coreutils, unzip, texinfo, libsdl1.2-dev, docbook-utils, gawk, python-pysqlite2, libxml2-utils, xmlto, help2man, diffstat, texi2html, make, gcc, build-essential, g++, bison, flex
 Recommends: ccache, python-psyco
