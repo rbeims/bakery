@@ -11,10 +11,6 @@ class UpdateCommand:
 
   Update OE Bakery development environment in the current directory.""")
 
-        parser.add_option("-p", "--pull",
-                          action="store_true", dest="pull", default=False,
-                          help="pull from remote repositories")
-
         (self.options, self.args) = parser.parse_args(argv)
 
         self.config = config
@@ -28,22 +24,9 @@ class UpdateCommand:
             print 'Aiee!  This is not a git repository!!'
             return
 
-        if self.options.pull and not oebakery.call('git pull'):
-            print 'Failed to pull updates to main repository'
-
         if self.config.has_section('remotes'):
             for (name, url) in self.config.items('remotes'):
                 git_update_remote(name, url)
-
-        if self.options.pull:
-            # older git versions return 1 on success, and newer versions 0
-            # so we will just ignore the return code for now
-            oebakery.call('git remote update')
-
-        if self.options.pull and self.config.has_section('remotes'):
-            for (name, url) in self.config.items('remotes'):
-                if not oebakery.call('git remote prune %s'%(name)):
-                    print 'Failed to prune remotes for main repository'
 
         if os.path.exists('.gitmodules'):
             if not oebakery.call('git submodule update --init'):
@@ -62,9 +45,9 @@ class UpdateCommand:
                 fetch_url = url_split[0]
 
                 if len(url_split) > 1:
-                    version = url_split[1]
+                    branch = url_split[1]
                 else:
-                    version = None
+                    branch = None
 
                 if len(url_split) > 2:
                     push_url = url_split[2]
@@ -77,13 +60,12 @@ class UpdateCommand:
                 else:
                     remotes = None
 
-                git_update_submodule(path, fetch_url, push_url, version,
-                                     remotes, self.options.pull)
+                git_update_submodule(path, fetch_url, push_url, branch, remotes)
 
         return
 
 
-def git_update_remote(name, url):
+def git_update_remote(name, url, path=None):
 
     url_split = url.split()
     if len(url_split) < 1 or len(url_split) > 2:
@@ -95,17 +77,15 @@ def git_update_remote(name, url):
         push_url = None
     fetch_url=url_split[0]
 
-    # git list of remotes and their fetch urls
-    remotes_list = oebakery.call('git remote -v', quiet=True).split('\n')
-
-    
-    remotes_list = oebakery.call('git remote -v', quiet=True)
+    # get list of remotes and their urls
+    remotes_list = oebakery.call('git remote -v', dir=path, quiet=True)
     if remotes_list == None:
         print 'Failed to get list of remotes', remotes_list
         return
     else:
         remotes_list = remotes_list.split('\n')
 
+    # get fetch urls
     remotes_fetch = {}
     for remote in remotes_list:
         if '\t' in remote:
@@ -124,137 +104,107 @@ def git_update_remote(name, url):
     remotes_push = {}
     for iter_name in remotes_fetch.keys():
         iter_url = oebakery.call('git config --get remote.%s.pushurl'%iter_name,
-                                 quiet=True)
+                                 dir=path, quiet=True)
         if iter_url:
             remotes_push[iter_name] = iter_url.strip()
 
     # if remote is not found, add it and return
     if not remotes_fetch.has_key(name):
-        if not oebakery.call('git remote add %s %s'%(name, fetch_url)):
+        if not oebakery.call('git remote add %s %s'%(name, fetch_url),
+                             dir=path):
             print 'Failed to add remote', name
             return
         # also add push url if specified
         if push_url:
-            oebakery.call('git config remote.%s.pushurl %s'%(name, push_url))
+            oebakery.call('git config remote.%s.pushurl %s'%(name, push_url),
+                          dir=path)
         return
 
     # change (fetch) url if not matching
     if remotes_fetch[name] != fetch_url:
-        oebakery.call('git config remote.%s.url %s'%(name, fetch_url))
+        oebakery.call('git config remote.%s.url %s'%(name, fetch_url),
+                      dir=path)
 
     # if push url is different url, change it
     if push_url:
         if not remotes_push.has_key(name) or remotes_push[name] != push_url:
-            oebakery.call('git config remote.%s.pushurl %s'%(name, push_url))
+            oebakery.call('git config remote.%s.pushurl %s'%(name, push_url),
+                          dir=path)
 
     # if push url is currently set, but shouldn't be, remove it
     else:
         if remotes_push.has_key(name) and remotes_push[name] != fetch_url:
-            oebakery.call('git config --unset remote.%s.pushurl'%(name))
+            oebakery.call('git config --unset remote.%s.pushurl'%(name),
+                          dir=path)
 
     return
 
 
-def git_update_submodule(path, fetch_url, push_url=None, version=None,
-                         remotes=None, pull=False):
+def git_submodule_status(path):
 
-    oebakery.chdir(oebakery.get_topdir())
+    for line in oebakery.call('git submodule status', quiet=True).split('\n'):
+        if len(line) == 0:
+            continue
 
-    pristine_clone = False
-    if not os.path.exists(os.path.join(path, '.git')):
+        if (path == line[1:].split()[1]):
+            prefix = line[0]
+            commitid = line[1:].split()[0]
+            return (prefix, commitid)
 
-        # git clone
-        if version:
-            if not oebakery.call('git clone -n %s %s'%(fetch_url, path)):
-                print 'Failed to clone submodule %s'%path
-                return
-            pristine_clone = True
+    return None
 
-        else:
-            if not oebakery.call('git clone %s %s'%(fetch_url, path)):
-                print 'Failed to clone submodule %s'%path
-                return
 
-        oebakery.chdir(path)
+def git_update_submodule(path, fetch_url, push_url=None, branch=None,
+                         remotes=None):
 
-        if push_url:
-            oebakery.call('git config remote.origin.pushurl %s'%(push_url))
+    status = git_submodule_status(path)
 
-        oebakery.call('git config push.default tracking')
+    # Add as git submodule if necessary
+    if (status is None):
 
-    else:
-        oebakery.chdir(path)
+        if not oebakery.call('git submodule add %s %s'%(fetch_url, path)):
+            print 'Failed to add submodule %s'%path
+            return
+
+        if not oebakery.call('git submodule init %s'%(path)):
+            print 'Failed to init submodule %s'%path
+            return
+
+    # set push_default to 'tracking' if unset
+    push_default = oebakery.call('git config --get push.default',
+                                 dir=path, quiet=True)
+    if (push_default == None):
+        oebakery.call('git config push.default tracking', dir=path)
 
     # update origin fetch url if necessary
     current_url = oebakery.call('git config --get remote.origin.url',
-                                quiet=True)
+                                dir=path, quiet=True)
     if current_url:
         current_url = current_url.strip()
     if fetch_url != current_url:
-        if not oebakery.call('git config remote.origin.url %s'%(fetch_url)):
+        if not oebakery.call('git config remote.origin.url %s'%(fetch_url),
+                             dir=path):
             print 'Failed to set origin url for "%s": %s'%(path, fetch_url)
 
+    # set push url as specified in bakery.ini
     current_url = oebakery.call('git config --get remote.origin.pushurl',
-                                quiet=True)
+                                dir=path, quiet=True)
     if current_url:
         current_url = current_url.strip()
-
-    # set push url as specified in bakery.ini
     if push_url and current_url != push_url:
-        if not oebakery.call('git config remote.origin.pushurl %s'%(push_url)):
+        if not oebakery.call('git config remote.origin.pushurl %s'%(push_url),
+                             dir=path):
             print 'Failed to set origin push url for "%s": %s'%(path, push_url)
 
     # remove override of push url if not specified in bakery.ini
     if not push_url and current_url:
-        if not oebakery.call('git config --unset remote.origin.pushurl'):
-            print 'Failed to set origin push url for "%s": %s'%(path, push_url)
+        if not oebakery.call('git config --unset remote.origin.pushurl',
+                             dir=path):
+            print 'Failed to unset origin push url for "%s"'%(path)
 
-    # fetch updates from origin
-    if pull and not oebakery.call('git fetch origin'):
-        print 'Failed to fetch updates from origin for "%s"'%path
-
-    if version:
-
-        # check if version is a valid commit or remote branch name
-        commit = branch = False
-        descr = oebakery.call('git describe --all %s'%version, quiet=True)
-        if descr:
-            commit = descr
-        else:
-            branch = 'remotes/origin/%s'%version
-            oebakery.call('git fetch origin')
-            if oebakery.call('git describe --all %s'%branch, quiet=True):
-                pass
-            else:
-                print 'Error: invalid version for submodule %s: %s'%(
-                    path, version)
-                return
-    
-        # create and checkout local branch tracking the requested remote branch
-        if branch:
-            if not oebakery.call('git checkout --track -b %s %s'%(
-                    version, branch)):
-                print 'Failed to create local tracking branch for', branch
-                return
-    
-        # checkout the requested version (specific commit, or local branch)
-        elif (pristine_clone or
-              commit != oebakery.call('git describe --all HEAD', quiet=True)):
-            if not oebakery.call('git checkout %s'%version):
-                print 'Failed to checkout', version
-                return
-
+    # update remotes
     if remotes and len(remotes) > 0:
         for (name, url) in remotes:
-            git_update_remote(name, url)
-
-    # older git versions return 1 on success, and newer versions 0
-    # so we will just ignore the return code for now
-    oebakery.call('git remote update')
-
-    if pull and remotes and len(remotes) > 0:
-        for (name, url) in remotes:
-            if not oebakery.call('git remote prune %s'%(name)):
-                print 'Failed to prune remotes for %s'%path
+            git_update_remote(name, url, path=path)
 
     return

@@ -113,10 +113,13 @@ def call(cmd, dir=None, quiet=False, success_returncode=0):
 
     if dir:
         pwd = os.getcwd()
-        chdir(dir, quiet)
+        chdir(dir, quiet=True)
 
     if not quiet:
-        print '>', cmd
+        if dir:
+            print '%s> %s'%(dir, cmd)
+        else:
+            print '> %s'%(cmd)
 
     retval = None
     if quiet:
@@ -133,7 +136,7 @@ def call(cmd, dir=None, quiet=False, success_returncode=0):
             retval = True
 
     if dir:
-        chdir(pwd, quiet)
+        chdir(pwd, quiet=True)
 
     return retval
 

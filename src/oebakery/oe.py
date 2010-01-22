@@ -8,7 +8,8 @@ def main():
 Allowed oe commands are:
   init        Setup new OE Bakery development environment
   clone       Clone an OE Bakery development environment into a new directory
-  update      Update OE Bakery development environment
+  update      Update OE Bakery development environment accoring to configuration
+  pull        Pull updates from remote repositories
   tmp         Manage TMPDIR directories
   bake        Build recipe (call bitbake)
   ingredient  Manage ingredient (downloaded sources) files
@@ -37,6 +38,7 @@ specific command."""
     from oebakery.cmd_init import InitCommand
     from oebakery.cmd_clone import CloneCommand
     from oebakery.cmd_update import UpdateCommand
+    from oebakery.cmd_pull import PullCommand
     from oebakery.cmd_tmp import TmpCommand
     from oebakery.cmd_bake import BakeCommand
     #from oebakery.cmd_ingredient import IngredientCommand
@@ -59,6 +61,9 @@ specific command."""
 
     if sys.argv[1] == "update":
         cmd = UpdateCommand(config, sys.argv[2:])
+
+    elif sys.argv[1] == "pull":
+        cmd = PullCommand(config, sys.argv[2:])
 
     elif sys.argv[1] == "tmp":
         cmd = TmpCommand(config, sys.argv[2:])
