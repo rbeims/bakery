@@ -43,6 +43,7 @@ class BakeCommand:
         print 'BBPATH         =', os.environ['BBPATH']
         print ''
 
+        os.umask(022)
         oebakery.call(['bitbake'] + self.args)
 
         return
