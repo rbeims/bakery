@@ -33,7 +33,13 @@ def set_topdir(dir):
 def locate_topdir():
     global TOPDIR
 
-    TOPDIR = locate_topdir_recursive(os.getenv('PWD'))
+    if (os.path.exists('%s/bakery.ini'%os.getcwd()) or
+        os.path.exists('%s/.bakery'%os.getcwd())):
+        # buildbot does not set PWD correctly, so we have to try os.getcwd()
+        # first, which is ok as long as we don't recurse into it.
+        TOPDIR = os.getcwd()
+    else:
+        TOPDIR = locate_topdir_recursive(os.getenv('PWD'))
 
     if not TOPDIR:
         print >>sys.stderr, 'ERROR: current directory is not part of an OE Bakery development environment'
