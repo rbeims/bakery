@@ -36,11 +36,16 @@ class BakeCommand:
         bbpath = bbpath.strip(':')
         os.environ['BBPATH'] = bbpath
 
-        os.environ['BB_ENV_EXTRAWHITE'] = 'OE_HOME OE_TMPDIR'
+        bb_env_extrawhite = 'OE_HOME OE_TMPDIR'
+        if os.getenv('BB_ENV_EXTRAWHITE'):
+            os.environ['BB_ENV_EXTRAWHITE'] += " " + bb_env_extrawhite
+        else:
+            os.environ['BB_ENV_EXTRAWHITE'] = bb_env_extrawhite
 
-        print 'OE_HOME        =', os.environ['OE_HOME']
-        print 'OE_TMPDIR      =', os.environ['OE_TMPDIR']
-        print 'BBPATH         =', os.environ['BBPATH']
+        print 'OE_HOME           =', os.environ['OE_HOME']
+        print 'OE_TMPDIR         =', os.environ['OE_TMPDIR']
+        print 'BBPATH            =', os.environ['BBPATH']
+        print 'BB_ENV_EXTRAWHITE =', os.environ['BB_ENV_EXTRAWHITE']
         print ''
 
         os.umask(022)
