@@ -8,7 +8,7 @@ try:
 except ImportError:
     print 'Warning: cannot find stdeb module'
 
-version = '0.16.0'
+version = '0.16.1'
 
 setup(name='oe-bakery',
       version=version,
