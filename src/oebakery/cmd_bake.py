@@ -22,11 +22,18 @@ class BakeCommand:
     
         topdir = oebakery.get_topdir()
 
-        self.tmp_cmd = TmpCommand(self.config)
-        tmpdir = self.tmp_cmd.get_tmpdir()
+        if os.getenv('OE_TMPDIR') == None:
+            self.tmp_cmd = TmpCommand(self.config)
+            os.environ['OE_TMPDIR'] = self.tmp_cmd.get_tmpdir()
+
+        if not os.path.exists(os.environ['OE_TMPDIR']):
+            os.makedirs(os.environ['OE_TMPDIR'])
+
+        if (os.path.islink(os.environ['OE_TMPDIR']) and
+            not os.path.exists(os.path.realpath(os.environ['OE_TMPDIR']))):
+            os.makedirs(os.path.realpath(os.environ['OE_TMPDIR']))
 
         os.environ['OE_HOME'] = topdir
-        os.environ['OE_TMPDIR'] = tmpdir
         os.environ['PATH'] = '%s:%s'%(
             os.path.join(topdir, self.config.get('bitbake', 'path')),
             os.environ['PATH'])
