@@ -25,6 +25,8 @@ class BakeCommand:
         if os.getenv('OE_TMPDIR') == None:
             self.tmp_cmd = TmpCommand(self.config)
             os.environ['OE_TMPDIR'] = self.tmp_cmd.get_tmpdir()
+        else:
+            os.environ['OE_TMPDIR'] = os.path.realpath(os.environ['OE_TMPDIR'])
 
         if not os.path.exists(os.environ['OE_TMPDIR']):
             os.makedirs(os.environ['OE_TMPDIR'])
