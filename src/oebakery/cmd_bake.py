@@ -22,7 +22,7 @@ class BakeCommand:
     
         topdir = oebakery.get_topdir()
 
-        if os.getenv('OE_TMPDIR') == None:
+        if os.getenv('OE_TMPDIR') is None:
             self.tmp_cmd = TmpCommand(self.config)
             os.environ['OE_TMPDIR'] = self.tmp_cmd.get_tmpdir()
         else:
@@ -34,6 +34,9 @@ class BakeCommand:
         if (os.path.islink(os.environ['OE_TMPDIR']) and
             not os.path.exists(os.path.realpath(os.environ['OE_TMPDIR']))):
             os.makedirs(os.path.realpath(os.environ['OE_TMPDIR']))
+
+        if os.getenv('DL_DIR') is not None:
+            os.environ['DL_DIR'] = os.path.realpath(os.environ['DL_DIR'])
 
         os.environ['OE_HOME'] = topdir
         os.environ['PATH'] = '%s:%s'%(
