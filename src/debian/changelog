@@ -1,3 +1,27 @@
+oe-bakery (0.16.5~hardy) hardy; urgency=low
+
+  * hardy build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 01 Feb 2010 14:52:39 +0100
+
+oe-bakery (0.16.5~intrepid) intrepid; urgency=low
+
+  * intrepid build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 01 Feb 2010 14:52:36 +0100
+
+oe-bakery (0.16.5~jaunty) jaunty; urgency=low
+
+  * jaunty build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 01 Feb 2010 14:52:33 +0100
+
+oe-bakery (0.16.5~karmic) karmic; urgency=low
+
+  * karmic build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 01 Feb 2010 14:52:25 +0100
+
 oe-bakery (0.16.4~hardy) hardy; urgency=low
 
   * hardy build
