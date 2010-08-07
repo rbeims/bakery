@@ -46,7 +46,6 @@ specific command."""
     from oebakery.cmd_bake import BakeCommand
     #from oebakery.cmd_ingredient import IngredientCommand
     #from oebakery.cmd_prebake import PrebakeCommand
-    from oebakery import misc
 
     if sys.argv[1] == "init":
         cmd = InitCommand(sys.argv[2:])
