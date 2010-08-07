@@ -8,7 +8,7 @@ XS-Python-Version: current
 
 Package: oe-bakery
 Architecture: all
-Depends: ${python:Depends}, python-pkg-resources, sed, wget, cvs, subversion, git-core, mercurial, coreutils, unzip, texinfo, libsdl1.2-dev, docbook-utils, gawk, python-pysqlite2, libxml2-utils, xmlto, help2man, diffstat, texi2html, make, gcc, build-essential, g++, bison, flex, libncurses-dev
+Depends: ${python:Depends}, python-pkg-resources, sed, wget, cvs, subversion, git-core, mercurial, coreutils, unzip, texinfo, libsdl1.2-dev, docbook-utils, gawk, python-pysqlite2, libxml2-utils, xmlto, help2man, diffstat, texi2html, make, gcc, build-essential, g++, bison, flex, libncurses-dev, automake (>= 1.10), libtool (>= 1.5.26)
 Recommends: ccache, python-psyco
 Suggests: 
 XB-Python-Version: ${python:Versions}
