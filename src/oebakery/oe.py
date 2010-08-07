@@ -30,11 +30,14 @@ specific command."""
             print usage
             return
 
-    # hack to be able to run from source directory
-    sys.path.insert(
-        0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+    try:
+        import oebakery
+    except ImportError:
+        # hack to be able to run from source directory
+        sys.path.insert(
+            0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+        import oebakery
 
-    import oebakery
     from oebakery.cmd_init import InitCommand
     from oebakery.cmd_clone import CloneCommand
     from oebakery.cmd_update import UpdateCommand
