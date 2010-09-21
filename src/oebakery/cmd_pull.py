@@ -67,7 +67,11 @@ class PullCommand:
                 print 'Failed to pull updates to main repository'
 
         if self.options.update_sub and os.path.exists('.gitmodules'):
-            cmd = 'git submodule update --init'
+            cmd = 'git submodule init'
+            if not oebakery.call(cmd):
+                print 'Failed to initialize git submodules'
+                return
+            cmd = 'git submodule update'
             if '--recursive' in oebakery.call('git help submodule', quiet=True):
                 cmd += ' --recursive'
             if not oebakery.call(cmd):

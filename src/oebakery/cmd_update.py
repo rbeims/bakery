@@ -29,7 +29,10 @@ class UpdateCommand:
                 git_update_remote(name, url)
 
         if os.path.exists('.gitmodules'):
-            if not oebakery.call('git submodule update --init'):
+            if not oebakery.call('git submodule init'):
+                print 'Failed to initialize git submodules'
+                return
+            if not oebakery.call('git submodule update'):
                 print 'Failed to update git submodules'
                 return
 
