@@ -61,10 +61,6 @@ specific command."""
 
     config = oebakery.read_config()
 
-    if sys.argv[1] in ('update', 'pull', 'tmp', 'bake'):
-        cmd = compile("""import oebakery.%s
-oebakery.%s.run(sys.argv[2:])"""%(sys.argv[1], sys.argv[1]))
-
     if sys.argv[1] == "update":
         cmd = UpdateCommand(config, sys.argv[2:])
 
