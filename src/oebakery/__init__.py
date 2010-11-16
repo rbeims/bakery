@@ -15,6 +15,31 @@ __all__ = [
 import sys, os, subprocess, re, ConfigParser, string, shutil
 
 
+def info(msg=None):
+    print >>sys.stderr, "INFO: %s"%(msg)
+    return
+
+
+def debug(msg=None):
+    print >>sys.stderr, "DEBUG: %s"%(msg)
+    return
+
+
+def warn(msg=None):
+    print >>sys.stderr, "WARNING: %s"%(msg)
+    return
+
+
+def err(msg=None):
+    print >>sys.stderr, "ERROR: %s"%(msg)
+    return
+
+
+def die(msg=None, err=1):
+    print >>sys.stderr, "ERROR: %s"%(msg)
+    sys.exit(err)
+
+
 TOPDIR = None
 
 def set_topdir(dir):
@@ -22,8 +47,7 @@ def set_topdir(dir):
 
     if not (os.path.exists(os.path.join(dir, 'bakery.ini'))
             or os.path.exists(os.path.join('.bakery'))):
-        print >>sys.stderr, 'ERROR: not a valid OE Bakery development environment:', dir
-        return None
+        die("Not a valid OE-lite repository: %s"%dir)
 
     TOPDIR = os.path.abspath(dir)
 
@@ -42,8 +66,7 @@ def locate_topdir():
         TOPDIR = locate_topdir_recursive(os.getenv('PWD'))
 
     if not TOPDIR:
-        print >>sys.stderr, 'ERROR: current directory is not part of an OE Bakery development environment'
-        sys.exit(1)
+        die("current directory is not part of an OE-lite repository")
 
     return TOPDIR
 
@@ -76,8 +99,7 @@ def read_config():
         sys.exit(1)
 
     if not config.read(inifile):
-        print >>sys.stderr, 'ERROR: failed to read %s'%inifile
-        sys.exit(1)
+        die("ERROR: failed to read %s"%inifile)
 
     if not config.has_section('tmp'):
         config.add_section('tmp')
