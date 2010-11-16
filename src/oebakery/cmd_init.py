@@ -1,36 +1,29 @@
-import os, subprocess, socket, shutil, optparse
+import optparse, sys, os
+import subprocess, socket, shutil
 import oebakery
-from oebakery.cmd_update import UpdateCommand
+from oebakery import die, err
 
-class InitCommand:
+arguments = None
+description = """Setup OE-lite environment in the current directory"""
 
-    def __init__(self, argv=[]):
+def run(parser, args, config=None):
 
-        parser = optparse.OptionParser("""Usage: oe init [options]
+    if parser:
+        (options, args) = parser.parse_args(args)
+    else:
+        (options, args) = args
 
-  Setup OE Bakery development environment in the current directory.""")
+    topdir = oebakery.set_topdir(os.path.curdir)
 
-        (self.options, self.args) = parser.parse_args(argv)
+    if not os.path.exists(".git"):
 
-        self.config = oebakery.read_config()
+        if not oebakery.call("git init"):
+            die("Failed to initialize git")
+            return
 
-        return
+        if not oebakery.call("git config push.default tracking"):
+            die("Failed to set push.default = tracking")
 
+    oebakery.copy_local_conf_sample(config.getVar("CONFDIR", 0) or "conf")
 
-    def run(self):
-
-        topdir = oebakery.set_topdir(os.path.curdir)
-
-        if not os.path.exists('.git'):
-
-            if not oebakery.call('git init'):
-                print 'Failed to initialize git'
-                return
-
-            if not oebakery.call('git config push.default tracking'):
-                print 'Failed to set push.default = tracking'
-
-        oebakery.copy_local_conf_sample(self.config.get('bitbake', 'confdir'))
-
-        self.update_cmd = UpdateCommand(self.config)
-        return self.update_cmd.run()
+    return ("update", ({}, []), config)

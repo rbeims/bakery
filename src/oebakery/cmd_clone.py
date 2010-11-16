@@ -1,56 +1,47 @@
 import optparse, sys, os
 import oebakery
-from oebakery.cmd_update import UpdateCommand
 
-class CloneCommand:
-
-    def __init__(self, argv):
-
-        parser = optparse.OptionParser("""Usage: oe clone [options]* <repository> [directory]
-
-  Clone OE Bakery development environment into a new directory.
+arguments = "<repository> <directory>"
+description = """Clone an OE-lite development environment into a new directory
 
 Arguments:
-  file        bakery configuration file (remote URL or local file)
-  directory   directory to clone into (default is current directory)""")
+  repository            OE-lite (git) repository to clone
+  directory             directory to to clone into (default is current dir)"""
 
-        (options, args) = parser.parse_args(argv)
+def run(parser=None, args=None, config=None):
 
-        if len(args) < 1:
-            parser.error('too few arguments')
-        if len(args) > 2:
-            parser.error('too many arguments')
+    if parser:
+        (options, args) = parser.parse_args(args)
+    else:
+        (options, args) = args
 
-        self.repository = args[0]
+    if len(args) < 1:
+        parser.error('too few arguments')
+    if len(args) > 2:
+        parser.error('too many arguments')
 
-        if len(args) == 2:
-            self.directory = args[1]
-        else:
-            self.directory = os.path.basename(self.repository)
-            if self.directory[-4:] == '.git':
-                self.directory = self.directory[:-4]
+    if not args:
+        parser.error("repository argument required")
+    options.repository = args.pop(0)
 
-        self.options = options
+    if args:
+        options.directory = args.pop(0)
+    else:
+        options.directory = os.path.basename(options.repository)
+        if options.directory[-4:] == '.git':
+            options.directory = options.directory[:-4]
 
-        return
+    if args:
+        parser.error("too many arguments")
 
+    if not oebakery.call('git clone %s %s'%(options.repository,
+                                            options.directory)):
+        return 1
 
-    def run(self):
+    topdir = oebakery.set_topdir(options.directory)
+    oebakery.chdir(options.directory)
 
-        if not oebakery.call('git clone %s %s'%(self.repository,
-                                                self.directory)):
-            return
+    if not oebakery.call('git config push.default tracking'):
+        print 'Failed to set push.default = tracking'
 
-        topdir = oebakery.set_topdir(self.directory)
-        oebakery.chdir(self.directory)
-
-        if not oebakery.call('git config push.default tracking'):
-            print 'Failed to set push.default = tracking'
-
-        config = oebakery.read_config()
-
-        oebakery.copy_local_conf_sample(config.get('bitbake', 'confdir'))
-
-        self.update_cmd = UpdateCommand(config)
-        return self.update_cmd.run()
-
+    return ("init", ({}, []), config)

@@ -4,6 +4,7 @@ __version__ = '0.5'
 
 __all__ = [
 
+    'die',
     'set_topdir',
     'locate_topdir',
     'get_topdir',
@@ -45,8 +46,7 @@ TOPDIR = None
 def set_topdir(dir):
     global TOPDIR
 
-    if not (os.path.exists(os.path.join(dir, 'bakery.ini'))
-            or os.path.exists(os.path.join('.bakery'))):
+    if not (os.path.exists(os.path.join(dir, "conf", "oe-lite.conf"))):
         die("Not a valid OE-lite repository: %s"%dir)
 
     TOPDIR = os.path.abspath(dir)
@@ -57,10 +57,10 @@ def set_topdir(dir):
 def locate_topdir():
     global TOPDIR
 
-    if (os.path.exists('%s/bakery.ini'%os.getcwd()) or
-        os.path.exists('%s/.bakery'%os.getcwd())):
-        # buildbot does not set PWD correctly, so we have to try os.getcwd()
-        # first, which is ok as long as we don't recurse into it.
+    if (os.path.exists(os.path.join(os.getcwd(), 'conf', 'oe-lite.conf'))):
+        # PWD might not be set correctly, so we have to try
+        # os.getcwd() first, which is ok as long as we don't recurse
+        # into it.  This was experienced when running under Buildbot.
         TOPDIR = os.getcwd()
     else:
         TOPDIR = locate_topdir_recursive(os.getenv('PWD'))
@@ -76,7 +76,7 @@ def locate_topdir_recursive(dir):
     if dir == '/':
         return None
 
-    if (os.path.exists('%s/bakery.ini'%dir) or os.path.exists('%s/.bakery'%dir)):
+    if (os.path.exists(os.path.join(dir, 'conf', 'oe-lite.conf'))):
         return os.path.abspath(dir)
 
     return locate_topdir_recursive(os.path.dirname(dir))
@@ -90,15 +90,7 @@ def get_topdir():
 def read_config():
     config = ConfigParser.SafeConfigParser()
 
-    if os.path.exists('bakery.ini'):
-        inifile = 'bakery.ini'
-    elif os.path.exists('.bakery'):
-        inifile = '.bakery'
-    else:
-        print >>sys.stderr, 'ERROR: no bakery.ini or .bakery in current directory'
-        sys.exit(1)
-
-    if not config.read(inifile):
+    if not config.read(os.path.join("conf", "oe-lite.conf")):
         die("ERROR: failed to read %s"%inifile)
 
     if not config.has_section('tmp'):
