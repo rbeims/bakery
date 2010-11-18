@@ -4,7 +4,7 @@ __version__ = '0.5'
 
 __all__ = [
 
-    'die',
+    'debug',
     'set_topdir',
     'locate_topdir',
     'get_topdir',
@@ -16,28 +16,32 @@ __all__ = [
 import sys, os, subprocess, re, ConfigParser, string, shutil
 
 
-def info(msg=None):
-    print >>sys.stderr, "INFO: %s"%(msg)
+DEBUG = False
+
+
+def info(msg):
+    print str(msg)
     return
 
 
-def debug(msg=None):
-    print >>sys.stderr, "DEBUG: %s"%(msg)
+def debug(msg):
+    if DEBUG:
+        print str(msg)
     return
 
 
-def warn(msg=None):
+def warn(msg):
     print >>sys.stderr, "WARNING: %s"%(msg)
     return
 
 
-def err(msg=None):
+def err(msg):
     print >>sys.stderr, "ERROR: %s"%(msg)
     return
 
 
 def die(msg=None, err=1):
-    print >>sys.stderr, "ERROR: %s"%(msg)
+    print >>sys.stderr, "FATAL: %s"%(msg)
     sys.exit(err)
 
 
