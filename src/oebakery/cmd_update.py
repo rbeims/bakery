@@ -70,18 +70,18 @@ def run(parser, args, config=None):
             err("update of remote %s failed"%(name))
             ok = False
 
+    if os.path.exists('.gitmodules'):
+        if not oebakery.call('git submodule init'):
+            die("Failed to initialize git submodules")
+        if not oebakery.call('git submodule update'):
+            die("Failed to update git submodules")
+
     for submodule in submodules:
         #if not git_update_submodule(*submodule):
         retval = git_update_submodule(*submodule)
         if not retval:
             err("update of submodule %s failed"%(submodule[0]))
             ok = False
-
-    if os.path.exists('.gitmodules'):
-        if not oebakery.call('git submodule init'):
-            die("Failed to initialize git submodules")
-        if not oebakery.call('git submodule update'):
-            die("Failed to update git submodules")
 
     if not ok:
         err("update failed")
@@ -223,7 +223,7 @@ def git_update_submodule(path, fetch_url, push_url=None, branch=None,
             err("Failed to set origin url %s for %s"%(fetch_url, path))
             ok = False
 
-    # set push url as specified in bakery.ini
+    # set push url as specified
     current_url = oebakery.call('git config --get remote.origin.pushurl',
                                 dir=path, quiet=True)
     if current_url:
@@ -234,7 +234,7 @@ def git_update_submodule(path, fetch_url, push_url=None, branch=None,
             err("Failed to set origin push url %s for %s"%(push_url, path))
             ok = False
 
-    # remove override of push url if not specified in bakery.ini
+    # remove override of push url if not specified
     if not push_url and current_url:
         if not oebakery.call('git config --unset remote.origin.pushurl',
                              dir=path):
