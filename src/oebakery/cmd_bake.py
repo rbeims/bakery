@@ -14,10 +14,10 @@ def run(parser, args, config):
         (options, args) = parser.parse_args(args)
     else:
         (options, args) = args
-    
-    baker = oelite.baker.OEliteBaker(config)
 
-    if baker.bake(options, args):
+    baker = oelite.baker.OEliteBaker(options, args, config)
+
+    if baker.bake():
         return 0
     else:
         return 1
