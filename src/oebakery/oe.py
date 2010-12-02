@@ -45,10 +45,6 @@ specific command."""
     sys.path.insert(
         0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-    # One more HACK to force running from source directory
-    sys.path.insert(
-        0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))), "bitbake/lib"))
-
     try:
         import oebakery
     except ImportError, e:
@@ -107,9 +103,6 @@ specific command."""
 
   %s."""%(cmd_name, arguments, description))
 
-    # Bring in BitBake
-    import bb.parse, bb.data
-
     # Setup first command to run
     cmd_args = sys.argv[1:]
     cmd_name = cmd_args[cmd_index]
@@ -120,11 +113,28 @@ specific command."""
     while cmd_name:
 
         if cmd_name != "clone":
+
             if topdir is None:
                 topdir = oebakery.locate_topdir()
             oebakery.chdir(topdir)
+
             if config is None:
-                config = bb.parse.handle("conf/oe-lite.conf", bb.data.init())
+
+                sys.path.insert(0, os.path.abspath("bitbake/lib"))
+                import bb.parse, bb.data
+                bb.msg.set_debug_level(0)
+
+                if cmd_name != "init":
+                    if not "__oe_lite__" in dir(bb):
+                        die("BitBake is not OE-lite Bitbake!")
+
+                # in case of clone/init, there might not be a
+                # topdir/bitbake/lib and we rely on bitbake being
+                # provided from host, and accept a normal BitBake
+                # version.
+
+                config = bb.parse.handle(os.path.abspath("conf/oe-lite.conf"),
+                                         bb.data.init())
                 config_defaults(config)
                 config.setVar("OE_TOPDIR", topdir)
 
