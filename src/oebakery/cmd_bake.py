@@ -15,6 +15,8 @@ def run(parser, args, config):
     else:
         (options, args) = args
 
+    oebakery.DEBUG = options.debug
+
     baker = oelite.baker.OEliteBaker(options, args, config)
 
     if baker.bake():
