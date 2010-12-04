@@ -8,12 +8,7 @@ Arguments:
   repository            OE-lite (git) repository to clone
   directory             directory to to clone into (default is current dir)"""
 
-def run(parser=None, args=None, config=None):
-
-    if parser:
-        (options, args) = parser.parse_args(args)
-    else:
-        (options, args) = args
+def run(parser, options, args, config):
 
     if len(args) < 1:
         parser.error('too few arguments')

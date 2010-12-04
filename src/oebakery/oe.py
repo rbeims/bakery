@@ -60,7 +60,7 @@ specific command."""
     from oebakery import die, err, warn, info, debug
 
     # Supported commands
-    cmds = ("clone", "init", "update", "pull", "bake", "tmp")
+    cmds = ("clone", "init", "update", "pull", "bake", "show", "tmp")
 
     # Look for a valid COMMAND
     def find_cmd(args, cmds):
@@ -147,7 +147,18 @@ specific command."""
         if parser:
             cmd_usage(parser, cmd_name, cmd)
 
-        exitcode = cmd.run(parser, cmd_args, config)
+        if "add_parser_options" in dir(cmd):
+            cmd.add_parser_options(parser)
+
+        if parser:
+            (options, cmd_args) = parser.parse_args(cmd_args)
+        else:
+            (options, cmd_args) = cmd_args
+
+        if options:
+            oebakery.DEBUG = options.debug
+
+        exitcode = cmd.run(parser, options, cmd_args, config)
 
         if isinstance(exitcode, int):
             break

@@ -6,12 +6,7 @@ from oebakery import die, err
 arguments = None
 description = """Setup OE-lite environment in the current directory"""
 
-def run(parser, args, config=None):
-
-    if parser:
-        (options, args) = parser.parse_args(args)
-    else:
-        (options, args) = args
+def run(parser, options, args, config=None):
 
     topdir = oebakery.set_topdir(os.path.curdir)
 

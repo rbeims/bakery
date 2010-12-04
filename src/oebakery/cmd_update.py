@@ -6,13 +6,8 @@ from oebakery import die, err
 arguments = None
 description = """Update OE-lite development environment"""
 
-def run(parser, args, config=None):
+def run(parser, options, args, config=None):
     ok = True
-
-    if parser:
-        (options, args) = parser.parse_args(args)
-    else:
-        (options, args) = args
 
     if not os.path.exists('.git'):
         die("Aiee!  This is not a git repository!!")
