@@ -136,7 +136,7 @@ specific command."""
                 config = bb.parse.handle(os.path.abspath("conf/oe-lite.conf"),
                                          bb.data.init())
                 config_defaults(config)
-                config.setVar("OE_TOPDIR", topdir)
+                config.setVar("TOPDIR", topdir)
 
         # Import the chosen command
         cmd = __import__("oebakery.cmd_" + cmd_name,
