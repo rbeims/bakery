@@ -72,7 +72,7 @@ def locate_topdir():
     if not TOPDIR:
         die("current directory is not part of an OE-lite repository")
 
-    return TOPDIR
+    return os.path.realpath(TOPDIR)
 
 
 def locate_topdir_recursive(dir):
