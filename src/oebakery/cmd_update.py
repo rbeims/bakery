@@ -48,12 +48,12 @@ def run(parser, options, args, config=None):
             OE_MODULE_REMOTES = config.getVar(varname, 0) or ""
             for remote in OE_MODULE_REMOTES.split():
                 varname = "OE_MODULE_REMOTE_%s_%s"%(submodule, remote)
-                url = config.getVar(varname, 0)
+                remote_url = config.getVar(varname, 0)
                 if not url:
                     err("%s must be defined"%(varname))
                     ok = False
                 #submodule_remotes[submodule].append((remote, url))
-                submodule_remotes.append((remote, url))
+                submodule_remotes.append((remote, remote_url))
 
             submodules.append((path, url, pushurl, branch, submodule_remotes))
 
@@ -189,6 +189,8 @@ def git_update_submodule(path, fetch_url, push_url=None, branch=None,
     ok = True
 
     status = git_submodule_status(path)
+
+    print >>sys.stderr, "git_update_submodule: path=%s fetch_url=%s"%(path, fetch_url)
 
     # Add as git submodule if necessary
     if (status is None):
