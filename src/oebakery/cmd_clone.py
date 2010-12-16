@@ -22,7 +22,8 @@ def run(parser, options, args, config):
     if args:
         options.directory = args.pop(0)
     else:
-        options.directory = os.path.basename(options.repository)
+        options.directory = options.repository.strip("/")
+        options.directory = os.path.basename(options.directory)
         if options.directory[-4:] == '.git':
             options.directory = options.directory[:-4]
 
