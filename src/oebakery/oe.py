@@ -175,16 +175,19 @@ def config_defaults(config):
 
     from oebakery import die, err, warn, info, debug
 
-    BBPATH = (config.getVar('BBPATH', 0) or ".").split(":")
-
-    if not BBPATH:
+    BBPATH = config.getVar('BBPATH', 0)
+    if BBPATH:
+        BBPATH = BBPATH.split(":")
+    else:
         BBPATH = ["."]
-        OE_MODULES = config.getVar("OE_MODULES")
+        OE_MODULES = config.getVar("OE_MODULES", 0)
         for submodule in OE_MODULES.split():
             module_path = config.getVar("OE_MODULE_PATH_" + submodule, 0)
             if not module_path:
-                path = "meta/" + submodule
-            BBPATH.append(path)
+                module_path = "meta/" + submodule
+            if os.path.basename(module_path.rstrip("/")) == "bitbake":
+                continue
+            BBPATH.append(module_path)
 
     config.setVar("BBPATH", ":".join(map(os.path.abspath, BBPATH)))
     config.setVar("BBPATH_PRETTY", ":".join(BBPATH))
@@ -192,23 +195,24 @@ def config_defaults(config):
     BBRECIPES = config.getVar('BBRECIPES', 0) or []
     if BBRECIPES:
         BBRECIPES = BBRECIPES.split(":")
-
-    if not BBRECIPES:
+    else:
         for i in range(len(BBPATH)):
             bbrecipes = os.path.join(BBPATH[i], "recipes")
             if os.path.isdir(bbrecipes):
                 BBRECIPES.append(os.path.join(bbrecipes, "*/*.bb"))
 
-    config.setVar("BBFILES", " ".join(map(os.path.abspath, BBRECIPES)))
-    config.setVar("BBFILES_PRETTY", " ".join(BBRECIPES))
+    config.setVar("BBRECIPES", ":".join(map(os.path.abspath, BBRECIPES)))
+    config.setVar("BBRECIPES_PRETTY", ":".join(BBRECIPES))
 
     for bbpath in BBPATH:
+        if os.path.basename(bbpath.rstrip("/")) == "bitbake":
+            continue
         bblib = os.path.abspath(os.path.join(bbpath, "lib"))
         if os.path.isdir(bblib):
             sys.path.insert(0, bblib)
 
-    #debug("BBPATH = %s"%(config.getVar("BBPATH", 0)))
-    #debug("BBFILES = %s"%(config.getVar("BBFILES", 0)))
+    #debug("BBPATH = %s"%(config.getVar("BBPATH_PRETTY", 0)))
+    #debug("BBRECIPES = %s"%(config.getVar("BBRECIPES_PRETTY", 0)))
     #debug("PYTHONPATH = %s"%sys.path)
     
     return
