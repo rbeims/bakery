@@ -14,7 +14,6 @@ def run(parser, options, args, config=None):
 
         if not oebakery.call("git init"):
             die("Failed to initialize git")
-            return
 
         if not oebakery.call("git config push.default tracking"):
             die("Failed to set push.default = tracking")
