@@ -15,7 +15,4 @@ def run(parser, options, args, config):
     options.quiet = True
     baker = oelite.baker.OEliteBaker(options, args, config)
 
-    if baker.show():
-        return 0
-    else:
-        return 1
+    return baker.show()

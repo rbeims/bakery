@@ -14,7 +14,4 @@ def add_parser_options(parser):
 def run(parser, options, args, config):
     baker = oelite.baker.OEliteBaker(options, args, config)
 
-    if baker.bake():
-        return 0
-    else:
-        return 1
+    return baker.bake()
