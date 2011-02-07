@@ -80,8 +80,9 @@ def run(parser, options, args, config=None):
 
     if not ok:
         err("update failed")
+        return 1
 
-    return 1
+    return 0
 
 
 def git_update_remote(name, url, path=None):
