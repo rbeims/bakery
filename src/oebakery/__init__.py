@@ -11,6 +11,9 @@ __all__ = [
     'read_config',
     'call',
 
+    'data',
+    'parse',
+
 ]
 
 import sys, os, subprocess, re, ConfigParser, string, shutil

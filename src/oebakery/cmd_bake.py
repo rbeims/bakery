@@ -12,6 +12,12 @@ def add_parser_options(parser):
 
 
 def run(parser, options, args, config):
-    baker = oelite.baker.OEliteBaker(options, args, config)
+    try:
+        baker = oelite.baker.OEliteBaker(options, args, config)
+    except oebakery.parse.ParseError, e:
+        print "ERROR:",
+        e.print_details()
+        print "Aborting"
+        return 1
 
     return baker.bake()

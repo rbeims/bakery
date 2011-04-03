@@ -58,6 +58,7 @@ specific command."""
             sys.exit(err)
 
     from oebakery import die, err, warn, info, debug
+    from oebakery.parse.confparse import ConfParser
 
     # Supported commands
     cmds = ("clone", "init", "update", "pull", "bake", "show", "tmp")
@@ -121,20 +122,23 @@ specific command."""
             if config is None:
 
                 sys.path.insert(0, os.path.abspath("bitbake/lib"))
-                import bb.parse, bb.data
-                bb.msg.set_debug_level(0)
+                #import bb.parse, bb.data
+                #import bb
+                #bb.msg.set_debug_level(0)
 
-                if cmd_name != "init":
-                    if not "__oe_lite__" in dir(bb):
-                        die("BitBake is not OE-lite Bitbake!")
+
+                #if cmd_name != "init":
+                #    if not "__oe_lite__" in dir(bb):
+                #        die("BitBake is not OE-lite Bitbake!")
 
                 # in case of clone/init, there might not be a
                 # topdir/bitbake/lib and we rely on bitbake being
                 # provided from host, and accept a normal BitBake
                 # version.
 
-                config = bb.parse.handle(os.path.abspath("conf/oe-lite.conf"),
-                                         bb.data.init())
+                confparser = ConfParser()
+                config = confparser.parse("conf/oe-lite.conf")
+                print "confparser run: config=%s"%(repr(config))
                 config_defaults(config)
                 config.setVar("TOPDIR", topdir)
 
@@ -214,9 +218,9 @@ def config_defaults(config):
     #debug("BBPATH = %s"%(config.getVar("BBPATH_PRETTY", 0)))
     #debug("BBRECIPES = %s"%(config.getVar("BBRECIPES_PRETTY", 0)))
     #debug("PYTHONPATH = %s"%sys.path)
-    
+
     return
-    
+
 
 if __name__ == "__main__":
     exitcode = main()
