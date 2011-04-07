@@ -1,5 +1,4 @@
 import ply.lex, ply.yacc
-import oebakery.data.dict
 import os
 import bb.utils
 from oebakery.parse import ParseError
@@ -14,10 +13,10 @@ class ConfParser(object):
         tabmodule = self.__class__.__module__ + "_tab"
         self.yacc = ply.yacc.yacc(module=self,
                                     tabmodule=tabmodule, debug=0)
-        if data:
+        if data is not None:
             self.data = data
         else:
-            self.data = oebakery.data.dict.DictData()
+            self.data = oebakery.data.sqlite.SqliteData()
         self.parent = parent
         return
 
@@ -30,7 +29,6 @@ class ConfParser(object):
         'fakeroot'	: 'FAKEROOT',
         'python'	: 'PYTHON',
         'addtask'	: 'ADDTASK',
-        'def'		: 'DEF',
         }
 
     precedence = ()
@@ -38,6 +36,7 @@ class ConfParser(object):
     literals = ''
 
     states = (
+        ('def', 'exclusive'),
         ('func', 'exclusive'),
         ('include', 'exclusive'),
         ('inherit', 'exclusive'),
@@ -48,36 +47,52 @@ class ConfParser(object):
         'VARNAME', 'FLAG',
         'ASSIGN', 'EXPASSIGN', 'WEAKASSIGN', 'LAZYASSIGN',
         'APPEND', 'PREPEND', 'POSTDOT', 'PREDOT',
-        'STRING', 'NUMBER', 'BOOL',
+        'STRING',
         'NEWLINE', 'COMMENT',
         'INCLUDEFILE', # 'INCLUDE' and 'REQUIRE' included as reserved word
         'INHERITCLASS', # 'INHERIT' included as reserved word
-        'FUNCSTART', 'FUNCSTOP', 'FUNCLINE',
+        'FUNCSTART', 'FUNCSTOP', 'FUNCLINE', 'DEF',
         'TASK',
         ]
 
 
     def t_DEF(self, t):
-        r'def\s'
-        raise ParseError(self,
-            "OE-lite does not support def style functions: %s line %d"%(
-                self.filename, t.lineno),
-            t, t.value.strip())
+        r'def[ \t]+[a-zA-Z][a-zA-Z0-9_]*[ \t]*\(.*\):\n'
+        t.lexer.lineno += 1
+        t.lexer.push_state('def')
+        print "DEF=%s"%(repr(t.value))
+        return t
+
+    t_def_ignore = ''
+
+    def t_def_FUNCLINE(self, t):
+        r'[ \t]+[^\n]*\n'
+        t.lexer.lineno += 1
+        print "FUNCLINE=%s"%(repr(t.value))
+        return t
+
+    def t_def_FUNCSTOP(self, t):
+        r'\n'
+        t.lexer.lineno += 1
+        t.lexer.pop_state()
+        print "FUNCSTOP=%s"%(repr(t.value))
+        return t
+
 
     def t_INCLUDE(self, t):
-        r'include\s'
+        r'include[ \t]'
         t.lexer.push_state('include')
         return t
 
     def t_REQUIRE(self, t):
-        r'require'
+        r'require[ \t]'
         t.lexer.push_state('include')
         return t
 
     t_include_ignore = ' \t'
 
     def t_include_INCLUDEFILE(self, t):
-        r'\S+'
+        r'[^ \t]+'
         return t
 
     def t_include_NEWLINE(self, t):
@@ -88,7 +103,7 @@ class ConfParser(object):
 
 
     def t_INHERIT(self, t):
-        r'inherit'
+        r'inherit[ \t]'
         t.lexer.push_state('inherit')
         return t
 
@@ -106,7 +121,8 @@ class ConfParser(object):
 
 
     def t_FUNCSTART(self, t):
-        r'\(\)\s*\{\s*\n'
+        r'\(\)[ \t]*\{[ \t]*\n'
+        t.lexer.funcstart = t.lexer.lineno
         t.lexer.push_state('func')
         t.lexer.lineno += 1
         return t
@@ -123,9 +139,8 @@ class ConfParser(object):
         t.lexer.lineno += 1
         return t
 
-
     def t_ADDTASK(self, t):
-        r'addtask\s'
+        r'addtask[ \t]'
         t.lexer.push_state('addtask')
         return t
 
@@ -150,19 +165,19 @@ class ConfParser(object):
 
     def t_TRUE(self, t):
         r'True'
-        t.type = "BOOL"
-        t.value = True
+        t.type = "STRING"
+        t.value = "1"
         return t
 
     def t_FALSE(self, t):
         r'False'
-        t.type = "BOOL"
-        t.value = False
+        t.type = "STRING"
+        t.value = "0"
         return t
 
     def t_NUMBER(self, t):
         r'\d+'
-        t.value = int(t.value)
+        t.type = "STRING"
         return t
 
 
@@ -286,7 +301,7 @@ class ConfParser(object):
                      | func NEWLINE
                      | fakeroot_func NEWLINE
                      | python_func NEWLINE
-                     | def_func NEWLINE
+                     | def_func
                      | addtask NEWLINE
                      | COMMENT'''
         return
@@ -294,12 +309,12 @@ class ConfParser(object):
     def p_variable(self, p):
         '''variable : VARNAME
                     | export_variable'''
-        p[0] = (p[1], 'val')
+        p[0] = (p[1], '')
         return
 
     def p_export_variable(self, p):
         '''export_variable : EXPORT VARNAME'''
-        self.data.setVarFlag(p[2], 'export', True)
+        self.data.setVarFlag(p[2], 'export', "1")
         p[0] = p[2]
         return
 
@@ -315,9 +330,7 @@ class ConfParser(object):
         return
 
     def p_simple_assignment(self, p):
-        '''assignment : varflag ASSIGN STRING
-                      | varflag ASSIGN NUMBER
-                      | varflag ASSIGN BOOL'''
+        '''assignment : varflag ASSIGN STRING'''
         self.data.setVarFlag(p[1][0], p[1][1], p[3])
         return
 
@@ -328,38 +341,34 @@ class ConfParser(object):
         return
 
     def p_defaultval_assignment(self, p):
-        '''assignment : variable LAZYASSIGN STRING
-                      | variable LAZYASSIGN NUMBER
-                      | variable LAZYASSIGN BOOL'''
+        '''assignment : variable LAZYASSIGN STRING'''
         self.data.setVarFlag(p[1][0], "defaultval", p[3])
         return
 
     def p_weak_assignment(self, p):
-        '''assignment : varflag WEAKASSIGN STRING
-                      | varflag WEAKASSIGN NUMBER
-                      | varflag WEAKASSIGN BOOL'''
+        '''assignment : varflag WEAKASSIGN STRING'''
         if self.data.getVarFlag(p[1][0], p[1][1]) == None:
             self.data.setVarFlag(p[1][0], p[1][1], p[3])
         return
 
     def p_append_assignment(self, p):
         '''assignment : varflag APPEND STRING'''
-        self.data.appendVarFlag(p[1][0], p[1][1], ' ' + p[3])
+        self.data.appendVarFlag(p[1][0], p[1][1], p[3])
         return
 
     def p_prepend_assignment(self, p):
         '''assignment : varflag PREPEND STRING'''
-        self.data.prependVarFlag(p[1][0], p[1][1], p[3] + ' ')
+        self.data.prependVarFlag(p[1][0], p[1][1], p[3])
         return
 
     def p_predot_assignment(self, p):
         '''assignment : varflag PREDOT STRING'''
-        self.data.appendVarFlag(p[1][0], p[1][1], p[3])
+        self.data.appendVarFlag(p[1][0], p[1][1], p[3], separator="")
         return
 
     def p_postdot_assignment(self, p):
         '''assignment : varflag POSTDOT STRING'''
-        self.data.prependVarFlag(p[1][0], p[1][1], p[3])
+        self.data.prependVarFlag(p[1][0], p[1][1], p[3], separator="")
         return
 
     def p_include(self, p):
@@ -377,15 +386,21 @@ class ConfParser(object):
         raise SyntaxError("inherit statements not allowed in configuration files")
 
     def p_inherit_classes(self, p):
-        '''inherit_classes : INHERITCLASS
-                           | INHERITCLASS inherit_classes'''
-        print "p_inherit_classes TBD"
+        '''inherit_classes : INHERITCLASS'''
+        p[0] = [ p[1] ]
+        return
+
+    def p_inherit_classes2(self, p):
+        '''inherit_classes : INHERITCLASS inherit_classes'''
+        p[0] = p[1].append(p[2])
         return
 
     def p_addtask(self, p):
         '''addtask : addtask_task
                    | addtask_task addtask_dependencies'''
-        raise SyntaxError("addtask not allowed in configuration files")
+        raise ParseError(self, "addtask not allowed in configuration files: "
+                         "%s line %d"%(self.filename or "<unknown>", p.lineno+1),
+                         p)
 
     def taskname(self, s):
         if s.startswith("do_"):
@@ -395,24 +410,35 @@ class ConfParser(object):
     def p_addtask_task(self, p):
         '''addtask_task : ADDTASK TASK'''
         p[0] = self.taskname(p[1])
-        print "p_addtask_task TBD"
         return
 
-    def p_addtask_dependencies(self, p):
-        '''addtask_dependencies : addtask_dependency
-                                | addtask_dependency addtask_dependencies'''
-        print "p_addtask_dependencies TBD"
+    def p_addtask_dependencies1(self, p):
+        '''addtask_dependencies : addtask_dependency'''
+        p[0] = p[1]
+        return
+
+    def p_addtask_dependencies2(self, p):
+        '''addtask_dependencies : addtask_dependency addtask_dependencies'''
+        p[0] = (set(p[1][0] + p[2][0]), set(p[1][1] + p[2][1]))
         return
 
     def p_addtask_dependency(self, p):
-        '''addtask_dependency : AFTER tasks
-                              | BEFORE tasks'''
-        p[0] = []
-        for task in p[2]:
-            p[0].append((p[1], task))
+        '''addtask_dependency : addtask_after
+                              | addtask_before'''
+        p[0] = p[1]
         return
 
-    def p_tasks1(self, p):
+    def p_addtask_after(self, p):
+        '''addtask_after : AFTER tasks'''
+        p[0] = (p[2], [])
+        return
+
+    def p_addtask_before(self, p):
+        '''addtask_before : BEFORE tasks'''
+        p[0] = ([], p[2])
+        return
+
+    def p_tasks(self, p):
         '''tasks : TASK'''
         p[0] = [ self.taskname(p[1]) ]
         return
@@ -443,9 +469,8 @@ class ConfParser(object):
         raise SyntaxError("functions not allowed in configuration files")
 
     def p_def_func(self, p):
-        '''def_func : DEF'''
-        print "def_func "*100
-        raise SyntaxError("def style functions not supported in OE-lite")
+        '''def_func : DEF func_body FUNCSTOP'''
+        raise SyntaxError("functions not allowed in configuration files")
 
 
     def t_ANY_error(self, t):
@@ -453,8 +478,7 @@ class ConfParser(object):
         #    self.filename or "<unknown>", t.lineno+1, repr(t.value[0]))
         #self.syntax_error(t, 1)
         #raise SyntaxError("Illegal character '%s'"%(t.value[0]))
-        raise ParseError(self,
-            "Illegal character in %s at line %d: %s"%(
+        raise ParseError(self, "Illegal character in %s at line %d: %s"%(
                 self.filename or "<unknown>", t.lineno+1, repr(t.value[0])),
             t, t.value[0])
 
@@ -466,7 +490,7 @@ class ConfParser(object):
         raise ParseError(self,
             "Syntax error in %s at line %d: type=%s value=%s"%(
                 self.filename or "<unknown>", p.lineno+1, p.type, p.value),
-            t, p.value)
+                         p, p.value)
 
     def syntax_error(self, err, errlen=None):
         if not errlen:
@@ -503,6 +527,19 @@ class ConfParser(object):
         return
 
 
+    def inherit(self, filename):
+        if not os.path.isabs(filename) and not filename.endswith(".bbclass"):
+            filename = os.path.join("classes", "%s.bbclass"%(filename))
+        if not "__INHERITS" in self.data:
+            self.data["__INHERITS"] = filename
+        else:
+            __INHERITS = self.data["__INHERITS"]
+            if filename in __INHERITS.split():
+                return
+            self.data.appendVar("__INHERITS", filename)
+        self.include(filename, require=True)
+
+
     def include(self, filename, require=False):
         filename = self.data.expand(filename)
         print "including file=%s"%(filename)
@@ -512,7 +549,6 @@ class ConfParser(object):
 
 
     def parse(self, filename, require=True, parser=None):
-        print "parse %s parser=%s"%(filename, parser)
         if not os.path.isabs(filename):
             bbpath = self.data.getVar("BBPATH", 2)
             if self.parent:
@@ -520,7 +556,6 @@ class ConfParser(object):
                 dirname = os.path.dirname(self.parent.filename)
                 bbpath = "%s:%s"%(dirname, bbpath)
             filename = bb.utils.which(bbpath, filename)
-            print "which filename=%s"%(filename)
         else:
             if not os.path.exists(filename):
                 print "file not found: %s"%(filename)
@@ -530,7 +565,6 @@ class ConfParser(object):
             self.filename = os.path.realpath(filename)
         else:
             self.filename = ""
-        print "self.filename = %s"%(self.filename)
 
         if not os.path.exists(self.filename):
             if not require:
@@ -545,13 +579,14 @@ class ConfParser(object):
                 print "don't include yourself!"
                 return
 
+        mtime = os.path.getmtime(self.filename)
         f = open(self.filename)
         self.text = f.read()
         f.close()
+        self.data.setFileMtime(self.filename, mtime)
 
         if not parser:
             parser = self
-        print "parser = %s"%(repr(parser))
         return parser._parse(self.text)
 
 
@@ -562,5 +597,5 @@ class ConfParser(object):
 
 
     def yacctest(self, s):
-        self.data = oebakery.data.dict.DictData()
+        self.data = oebakery.data.sqlite.SqliteData()
         return self._parse(s)

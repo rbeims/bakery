@@ -3,102 +3,102 @@
 conf_testmatrix = (
 
     ("hello = \"world\"\n",
-     {'hello':{'val':'world'}}),
+     {'hello':{'':'world'}}),
 
     ("foo = 'bar'\n",
-     {'foo':{'val':'bar'}}),
+     {'foo':{'':'bar'}}),
 
     ("foo = 'bar'",
-     {'foo':{'val':'bar'}}),
+     {'foo':{'':'bar'}}),
 
     ("\nfoo = 'bar'",
-     {'foo':{'val':'bar'}}),
+     {'foo':{'':'bar'}}),
 
     ("foo = 'bar'\n\n",
-     {'foo':{'val':'bar'}}),
+     {'foo':{'':'bar'}}),
 
     ("export foo = 'bar'\n",
-     {'foo':{'val':'bar','export':True}}),
+     {'foo':{'':'bar','export':'1'}}),
 
     ("export foo\n",
-     {'foo':{'export':True}}),
+     {'foo':{'export':'1'}}),
 
     ("foo='bar'\nexport foo\n",
-     {'foo':{'val':'bar','export':True}}),
+     {'foo':{'':'bar','export':'1'}}),
 
     ("export foo\nfoo='bar'\n",
-     {'foo':{'val':'bar','export':True}}),
+     {'foo':{'':'bar','export':'1'}}),
 
     ("hello = \"world\"\nfoo = 'bar'\n",
-     {'hello':{'val':'world'}, 'foo':{'val':'bar'}}),
+     {'hello':{'':'world'}, 'foo':{'':'bar'}}),
 
     ("hello = \"world\"\nfoo = 'bar'\nint = 42\ntrue = True\nfalse = False\n",
-     {'hello':{'val':'world'},
-      'foo':{'val':'bar'},
-      'int':{'val':42},
-      'true':{'val':True},
-      'false':{'val':False}}),
+     {'hello':{'':'world'},
+      'foo':{'':'bar'},
+      'int':{'':'42'},
+      'true':{'':'1'},
+      'false':{'':'0'}}),
 
     ("multiline = \"foo    \\\nbar \\\nhello world\"\n",
-     {'multiline':{'val':'foo    bar hello world'}}),
+     {'multiline':{'':'foo    bar hello world'}}),
 
 
     (r"""foo = 'bar'
 # en kommentar
   # endnu en kommentar
 hello = 'world'""",
-     {'foo':{'val':'bar'}, 'hello':{'val':'world'}}),
+     {'foo':{'':'bar'}, 'hello':{'':'world'}}),
 
     ("test = 'foo'\ntest += 'bar'\n",
-     {'test':{'val':'foo bar'}}),
+     {'test':{'':'foo bar'}}),
 
     ("test = 'foo'\ntest .= 'bar'\n",
-     {'test':{'val':'foobar'}}),
+     {'test':{'':'foobar'}}),
 
     ("test = 'foo'\ntest =+ 'bar'\n",
-     {'test':{'val':'bar foo'}}),
+     {'test':{'':'bar foo'}}),
 
     ("test = 'foo'\ntest =. 'bar'\n",
-     {'test':{'val':'barfoo'}}),
+     {'test':{'':'barfoo'}}),
      
     ("withspace = \"foo bar\"\n",
-     {'withspace':{'val':'foo bar'}}),
+     {'withspace':{'':'foo bar'}}),
 
     ('quoteesc1 = "foo \\\"bar"\n',
-     {'quoteesc1':{'val':'foo "bar'}}),
+     {'quoteesc1':{'':'foo "bar'}}),
 
     ("quoteesc1 = 'foo \\\'bar'\n",
-     {'quoteesc1':{'val':"foo 'bar"}}),
+     {'quoteesc1':{'':"foo 'bar"}}),
 
     ("hest[pony] = 'ko'\n",
      {'hest':{'pony':"ko"}}),
 
     ("include /tmp/foobar.inc\n",
-     {'foo':{'val':'bar'}}),
+     {'foo':{'':'bar'}}),
 
     ("include /tmp/foobar-no-such-thing.inc\n",
      {}),
 
     ("require /tmp/foobar.inc\n",
-     {'foo':{'val':'bar'}}),
+     {'foo':{'':'bar'}}),
 
     #("require /home/esben/oe-lite/master/conf/oe-lite.conf\n",
-    # {'foo':{'val':'bar'}}),
+    # {'foo':{'':'bar'}}),
 
 )
 
 bb_testmatrix = (
 
     ("do_foobar () {\n  set -ex\n  echo hello world\n}\n",
-     {'do_foobar':{'func':'sh','val':'  set -ex\n  echo hello world\n'}}),
+     {'do_foobar':{'func':'sh','':'  set -ex\n  echo hello world\n'}}),
 
     ("fakeroot do_foobar () {\n  set -ex\n  echo hello world\n}\n",
-     {'do_foobar':{'func':'sh','fakeroot':True,
-                   'val':'  set -ex\n  echo hello world\n'}}),
+     {'do_foobar':{'func':'sh','fakeroot':'1',
+                   '':'  set -ex\n  echo hello world\n'}}),
 
     ("python do_foobar () {\n  import sys\n  print \"hello world\"\n}\n",
      {'do_foobar':{'func':'python',
-                   'val':'  import sys\n  print \"hello world\"\n'}}),
+                   '':'  import sys\n  print \"hello world\"\n'}}),
 )
 
 expand_testmatrix = (
@@ -128,7 +128,9 @@ if __name__ == "__main__":
         print "\n" + repr(testdata)
         parser.lextest(testdata, debug=True)
         result = parser.yacctest(testdata)
-        if result.dict != expected_result:
+        if "dict" in dir(result):
+            result = result.dict()
+        if result != expected_result:
             print "result=%s\nexpected=%s\nFAIL"%(result, expected_result)
             failed += 1
         else:
@@ -142,7 +144,9 @@ if __name__ == "__main__":
         print "\n" + repr(testdata)
         parser.lextest(testdata, debug=True)
         result = parser.yacctest(testdata)
-        if result.dict != expected_result:
+        if "dict" in dir(result):
+            result = result.dict()
+        if result != expected_result:
             print "result=%s\nexpected=%s\nFAIL"%(result, expected_result)
             failed += 1
         else:

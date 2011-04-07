@@ -1,5 +1,5 @@
 import ply.lex, ply.yacc
-import oebakery.data.dict
+import oebakery.data.sqlite
 import re
 from bb.utils import better_eval
 
@@ -99,6 +99,7 @@ class ExpandParser(object):
 
     def p_syntax2(self, p):
         '''syntax : string syntax'''
+        print "syntax2 %s %s"%(repr(p[1]), repr(p[2]))
         p[0] = p[1] + p[2]
         return
 
@@ -161,7 +162,7 @@ class ExpandParser(object):
 
 
     def yacctest(self, s):
-        self.data = oebakery.data.dict.DictData()
+        self.data = oebakery.data.sqlite.SqliteData()
         self.parse(s)
         return self.data
 

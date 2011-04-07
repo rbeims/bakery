@@ -37,6 +37,13 @@ class DictData:
         else:
             self.setVarFlag(var, flag, value + current)
 
+    def appendListVarFlag(self, var, flag, value):
+        current = self.getVarFlag(var, flag)
+        if current == None:
+            self.setVarFlag(var, flag, [value])
+        else:
+            self.setVarFlag(var, flag, current + [value])
+
     def delVarFlag(self, var, flag):
         try:
             del self.dict[var][flag]
@@ -47,7 +54,7 @@ class DictData:
     def getVar(self, var, expand=2):
         val = self.getVarFlag(var, "val")
         if expand and val:
-            val = self.expand(val, expand == 1)
+            val = self.expand(val, expand in (1, True))
         return val
 
     def setVar(self, var, value, expand=0):
@@ -55,6 +62,9 @@ class DictData:
 
     def appendVar(self, var, value):
         return self.appendVarFlag(var, "val", value)
+
+    def appendListVar(self, var, value):
+        return self.appendListVarFlag(var, "val", value)
 
     def prependVar(self, var, value):
         return self.prependVarFlag(var, "val", value)
@@ -88,12 +98,8 @@ class DictData:
         return val is not None
 
     def __getitem__(self, var):
-        val = self.getVar(var, 0)
-        if val is None:
-            raise KeyError(var)
-        else:
-            return val
-
+        return self.getVar(var, 0)
+        
     def __setitem__(self, var, val):
         self.setVar(var, val)
 
