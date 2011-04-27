@@ -1,7 +1,129 @@
+class DictData:
+
+    def __init__(self):
+        self._dict = {}
+        self.mtime = {}
+        return
+
+    def dict(self):
+        return self._dict
+
+    def createCopy(self):
+        import copy
+        return copy.copy(self)
+
+    def appendVarFlag(self, var, flag, value, separator=" "):
+        current = self.getVarFlag(var, flag)
+        if current == None:
+            self.setVarFlag(var, flag, value)
+        else:
+            self.setVarFlag(var, flag, current + separator + value)
+
+    def appendVar(self, var, value, separator=" "):
+        current = self.getVar(var)
+        if current == None:
+            self.setVar(var, value)
+        else:
+            self.setVar(var, current + separator + value)
+
+    def prependVarFlag(self, var, flag, value, separator=" "):
+        current = self.getVarFlag(var, flag)
+        if current == None:
+            self.setVarFlag(var, flag, value)
+        else:
+            self.setVarFlag(var, flag, value + separator + current)
+
+    def prependVar(self, var, value, separator=" "):
+        current = self.getVar(var)
+        if current == None:
+            self.setVar(var, value)
+        else:
+            self.setVar(var, value + separator + current)
+
+    def getVar(self, var, expand=2):
+        val = self.getVarFlag(var, "")
+        if expand and val:
+            val = self.expand(val, expand in (1, True))
+        return val
+
+    def setVar(self, var, value, expand=0):
+        return self.setVarFlag(var, "", value)
+
+    def getVarFlag(self, var, flag):
+        try:
+            return self._dict[var][flag]
+        except KeyError:
+            return None
+
+    def setVarFlag(self, var, flag, value):
+        if not var in self._dict:
+            self._dict[var] = {}
+        self._dict[var][flag] = value
+        return
+
+    def delVarFlag(self, var, flag):
+        try:
+            del self._dict[var][flag]
+        except KeyError:
+            pass
+        return
+
+    def getVar(self, var, expand=2):
+        val = self.getVarFlag(var, "")
+        if expand and val:
+            val = self.expand(val, expand in (1, True))
+        return val
+
+    def setVar(self, var, value, expand=0):
+        return self.setVarFlag(var, "", value)
+
+    def delVar(self, var):
+        try:
+            del self._dict[var]
+        except KeyError:
+            pass
+        return
+
+    def expand(self, val, allow_unexpand=False):
+        if not val:
+            return val
+        expandparser = oebakery.parse.expandparse.ExpandParser(self, allow_unexpand)
+        expval = expandparser.expand(val)
+        return expval
+
+    def setFileMtime(self, filename, mtime):
+        self.mtime[filename] = mtime
+
+    def getFileMtime(self, filename):
+        if not filename in self.mtime:
+            return None
+        return self.mtime[filename]
+
+    def __str__(self):
+        return repr(self._dict)
+
+    def __iter__(self):
+        return self._dict.__iter__
+
+    def __len__(self):
+        return len(self._dict.keys())
+
+    def __contains__(self, var):
+        val = self.getVar(var, 0)
+        return val is not None
+
+    def __getitem__(self, var):
+        return self.getVar(var, 0)
+        
+    def __setitem__(self, var, val):
+        self.setVar(var, val)
+
+    def __delitem__(self, var):
+        self.delVar(var)
+
+
 import ply.lex, ply.yacc
-import oebakery.data.sqlite
 import re
-from bb.utils import better_eval
 
 class ExpandParser(object):
 
@@ -80,16 +202,6 @@ class ExpandParser(object):
 
     t_ANY_ignore = ''
 
-
-    def lextest(self, data, debug=False):
-        self.lexer.input(data)
-        tokens = []
-        for tok in self.lexer:
-            if debug:
-                print tok.type, repr(tok.value), tok.lineno, tok.lexpos
-            tokens.append((tok.type, tok.value))
-        return tokens
-
     start = 'syntax'
 
     def p_syntax1(self, p):
@@ -159,12 +271,6 @@ class ExpandParser(object):
     def p_error(self, p):
         print "p_error"
         raise SyntaxError("Syntax error: %s"%(repr(p)))
-
-
-    def yacctest(self, s):
-        self.data = oebakery.data.sqlite.SqliteData()
-        self.parse(s)
-        return self.data
 
 
     def expand(self, s):

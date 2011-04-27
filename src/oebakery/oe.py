@@ -54,11 +54,11 @@ specific command."""
         try:
             import oebakery
         except ImportError, e:
-            print >>sys.stderr, "ERROR: Cannot find OE-lite Bakery module"
-            sys.exit(err)
+            print >>sys.stderr, "FATAL: Cannot find OE-lite Bakery module"
+            sys.exit(1)
 
     from oebakery import die, err, warn, info, debug
-    from oebakery.parse.confparse import ConfParser
+    from simpleparse import SimpleParser, ParseError
 
     # Supported commands
     cmds = ("clone", "init", "update", "pull", "bake", "show", "tmp")
@@ -122,10 +122,10 @@ specific command."""
             if config is None:
 
                 sys.path.insert(0, os.path.abspath("bitbake/lib"))
-                #import bb.parse, bb.data
-                #import bb
-                #bb.msg.set_debug_level(0)
 
+                sys.path.insert(0, os.path.abspath("meta/core/lib"))
+                import oelite.parse
+                import oelite.parse.confparse
 
                 #if cmd_name != "init":
                 #    if not "__oe_lite__" in dir(bb):
@@ -136,9 +136,9 @@ specific command."""
                 # provided from host, and accept a normal BitBake
                 # version.
 
-                confparser = ConfParser()
+                oelite.parse.init()
+                confparser = oelite.parse.confparse.ConfParser()
                 config = confparser.parse("conf/oe-lite.conf")
-                print "confparser run: config=%s"%(repr(config))
                 config_defaults(config)
                 config.setVar("TOPDIR", topdir)
 
