@@ -121,7 +121,7 @@ specific command."""
             if config is None:
 
                 sys.path.insert(0, os.path.abspath("bitbake/lib"))
-                import bb.parse, bb.data
+                import bb.parse, bb.data, bb.msg
                 bb.msg.set_debug_level(0)
 
                 if cmd_name != "init":
