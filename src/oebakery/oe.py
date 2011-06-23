@@ -55,7 +55,7 @@ specific command."""
             import oebakery
         except ImportError, e:
             print >>sys.stderr, "ERROR: Cannot find OE-lite Bakery module"
-            sys.exit(err)
+            sys.exit(1)
 
     from oebakery import die, err, warn, info, debug
 
