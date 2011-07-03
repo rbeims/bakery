@@ -22,6 +22,10 @@ import sys, os, subprocess, re, ConfigParser, string, shutil
 DEBUG = False
 
 
+class FatalError(Exception):
+    pass
+
+
 def info(msg):
     print str(msg)
     return
@@ -45,6 +49,7 @@ def err(msg):
 
 def die(msg=None, err=1):
     print >>sys.stderr, "FATAL: %s"%(msg)
+    raise FatalError(msg)
     sys.exit(err)
 
 
