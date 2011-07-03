@@ -1,11 +1,20 @@
 #!/usr/bin/env python
-import sys, os, optparse
-import dircache, subprocess, string, re, glob, hashlib
+
+import sys
+import os
+import optparse
+import dircache
+import subprocess
+import string
+import re
+import glob
+import hashlib
+
 
 VERSION = "%prog 0.1foobar"
 
-def main():
 
+def main():
     usage="""Usage: oe <command> [options]*
 
 Allowed oe commands are:
@@ -55,10 +64,11 @@ specific command."""
             import oebakery
         except ImportError, e:
             print >>sys.stderr, "FATAL: Cannot find OE-lite Bakery module"
-            sys.exit(1)
+            return 1
 
     from oebakery import die, err, warn, info, debug
-    from simpleparse import SimpleParser, ParseError
+    import parse
+    import data
 
     # Supported commands
     cmds = ("clone", "init", "update", "pull", "bake", "show", "tmp")
@@ -121,11 +131,6 @@ specific command."""
 
             if config is None:
 
-                sys.path.insert(0, os.path.abspath("bitbake/lib"))
-
-                sys.path.insert(0, os.path.abspath("meta/core/lib"))
-                import oelite.parse
-                import oelite.parse.confparse
 
                 #if cmd_name != "init":
                 #    if not "__oe_lite__" in dir(bb):
@@ -136,11 +141,10 @@ specific command."""
                 # provided from host, and accept a normal BitBake
                 # version.
 
-                oelite.parse.init()
-                confparser = oelite.parse.confparse.ConfParser()
+                confparser = parse.BakeryParser()
                 config = confparser.parse("conf/oe-lite.conf")
                 config_defaults(config)
-                config.setVar("TOPDIR", topdir)
+                config["TOPDIR"] = topdir
 
         # Import the chosen command
         cmd = __import__("oebakery.cmd_" + cmd_name,
@@ -177,26 +181,24 @@ specific command."""
 def config_defaults(config):
     ok = True
 
-    from oebakery import die, err, warn, info, debug
-
-    BBPATH = config.getVar('BBPATH', 0)
+    BBPATH = config["BBPATH"]
     if BBPATH:
         BBPATH = BBPATH.split(":")
     else:
         BBPATH = ["."]
-        OE_MODULES = config.getVar("OE_MODULES", 0)
+        OE_MODULES = config["OE_MODULES"]
         for submodule in OE_MODULES.split():
-            module_path = config.getVar("OE_MODULE_PATH_" + submodule, 0)
+            module_path = config["OE_MODULE_PATH_" + submodule]
             if not module_path:
                 module_path = "meta/" + submodule
             if os.path.basename(module_path.rstrip("/")) == "bitbake":
                 continue
             BBPATH.append(module_path)
 
-    config.setVar("BBPATH", ":".join(map(os.path.abspath, BBPATH)))
-    config.setVar("BBPATH_PRETTY", ":".join(BBPATH))
+    config["BBPATH"] = ":".join(map(os.path.abspath, BBPATH))
+    config["BBPATH_PRETTY"] = ":".join(BBPATH)
 
-    BBRECIPES = config.getVar('BBRECIPES', 0) or []
+    BBRECIPES = config["BBRECIPES"] or []
     if BBRECIPES:
         BBRECIPES = BBRECIPES.split(":")
     else:
@@ -205,8 +207,8 @@ def config_defaults(config):
             if os.path.isdir(bbrecipes):
                 BBRECIPES.append(os.path.join(bbrecipes, "*/*.bb"))
 
-    config.setVar("BBRECIPES", ":".join(map(os.path.abspath, BBRECIPES)))
-    config.setVar("BBRECIPES_PRETTY", ":".join(BBRECIPES))
+    config["BBRECIPES"] = ":".join(map(os.path.abspath, BBRECIPES))
+    config["BBRECIPES_PRETTY"] = ":".join(BBRECIPES)
 
     for bbpath in BBPATH:
         if os.path.basename(bbpath.rstrip("/")) == "bitbake":
@@ -215,8 +217,8 @@ def config_defaults(config):
         if os.path.isdir(bblib):
             sys.path.insert(0, bblib)
 
-    #debug("BBPATH = %s"%(config.getVar("BBPATH_PRETTY", 0)))
-    #debug("BBRECIPES = %s"%(config.getVar("BBRECIPES_PRETTY", 0)))
+    #debug("BBPATH = %s"%(config["BBPATH_PRETTY"]))
+    #debug("BBRECIPES = %s"%(config["BBRECIPES_PRETTY"]))
     #debug("PYTHONPATH = %s"%sys.path)
 
     return

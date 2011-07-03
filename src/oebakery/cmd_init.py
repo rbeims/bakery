@@ -18,6 +18,6 @@ def run(parser, options, args, config=None):
         if not oebakery.call("git config push.default tracking"):
             die("Failed to set push.default = tracking")
 
-    oebakery.copy_local_conf_sample(config.getVar("CONFDIR", 0) or "conf")
+    oebakery.copy_local_conf_sample(config["CONFDIR"] or "conf")
 
     return ("update", ({}, []), config)
