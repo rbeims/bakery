@@ -14,10 +14,17 @@ def add_parser_options(parser):
 def run(parser, options, args, config):
     try:
         baker = oelite.baker.OEliteBaker(options, args, config)
-    except oelite.parse.ParseError, e:
-        print "ERROR:",
-        e.print_details()
-        print "Aborting"
+        return baker.bake()
+    except Exception, e:
+        import traceback
+        import sys
+        if "print_details" in dir(e):
+            print "\nERROR:", e
+            e.print_details()
+            if options.debug:
+                traceback.print_exc()
+        else:
+            print "ERROR: Uncaught Python exception"
+            traceback.print_exc()
+        print "ERROR: initializing baker failed, aborting!"
         return 1
-
-    return baker.bake()
