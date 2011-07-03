@@ -64,7 +64,7 @@ specific command."""
             import oebakery
         except ImportError, e:
             print >>sys.stderr, "FATAL: Cannot find OE-lite Bakery module"
-            return 1
+            sys.exit(1)
 
     from oebakery import die, err, warn, info, debug
     import parse
@@ -130,7 +130,6 @@ specific command."""
             oebakery.chdir(topdir)
 
             if config is None:
-
 
                 #if cmd_name != "init":
                 #    if not "__oe_lite__" in dir(bb):
