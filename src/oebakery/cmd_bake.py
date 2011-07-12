@@ -1,5 +1,5 @@
 import oebakery
-from oebakery import die, err, warn, info, debug
+from oebakery import die, err, warn, info, debug, FatalError
 import oelite.baker
 
 arguments = None
@@ -15,6 +15,8 @@ def run(parser, options, args, config):
     try:
         baker = oelite.baker.OEliteBaker(options, args, config)
         return baker.bake()
+    except FatalError:
+        return 1
     except Exception, e:
         import traceback
         import sys
