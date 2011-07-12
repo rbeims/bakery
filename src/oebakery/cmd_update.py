@@ -12,27 +12,27 @@ def run(parser, options, args, config=None):
     if not os.path.exists('.git'):
         die("Aiee!  This is not a git repository!!")
 
-    OE_REMOTES = config.getVar("OE_REMOTES", 0) or ""
+    OE_REMOTES = config["OE_REMOTES"] or ""
     remotes = []
     if OE_REMOTES:
         for remote in OE_REMOTES.split():
-            url = config.getVar("OE_REMOTE_"+remote, 0)
+            url = config["OE_REMOTE_"+remote]
             if not url:
                 err("OE_REMOTE_%s must be defined"%(remote))
                 ok = False
             remotes.append((remote, url))
 
-    OE_MODULES = config.getVar("OE_MODULES", 0)
+    OE_MODULES = config["OE_MODULES"]
     submodules = []
     #submodule_remotes = {}
     if OE_MODULES:
 
         for submodule in OE_MODULES.split():
 
-            path = config.getVar("OE_MODULE_PATH_" + submodule, 0)
-            url = config.getVar("OE_MODULE_URL_" + submodule, 0)
-            pushurl = config.getVar("OE_MODULE_PUSHURL_" + submodule, 0)
-            branch = config.getVar("OE_MODULE_BRANCH_" + submodule, 0)
+            path = config["OE_MODULE_PATH_" + submodule]
+            url = config["OE_MODULE_URL_" + submodule]
+            pushurl = config["OE_MODULE_PUSHURL_" + submodule]
+            branch = config["OE_MODULE_BRANCH_" + submodule]
 
             if not path:
                 path = "meta/" + submodule
@@ -45,10 +45,10 @@ def run(parser, options, args, config=None):
             #submodule_remotes[submodule] = []
             submodule_remotes = []
             varname = "OE_MODULE_REMOTES_" + submodule
-            OE_MODULE_REMOTES = config.getVar(varname, 0) or ""
+            OE_MODULE_REMOTES = config[varname] or ""
             for remote in OE_MODULE_REMOTES.split():
                 varname = "OE_MODULE_REMOTE_%s_%s"%(submodule, remote)
-                remote_url = config.getVar(varname, 0)
+                remote_url = config[varname]
                 if not url:
                     err("%s must be defined"%(varname))
                     ok = False
