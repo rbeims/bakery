@@ -12,12 +12,7 @@ def add_parser_options(parser):
 
 
 def run(parser, options, args, config):
-    try:
-        baker = oelite.baker.OEliteBaker(options, args, config)
-        return baker.bake()
-    except FatalError:
-        return 1
-    except Exception, e:
+    def fail():
         import traceback
         import sys
         if "print_details" in dir(e):
@@ -28,5 +23,21 @@ def run(parser, options, args, config):
         else:
             print "ERROR: Uncaught Python exception"
             traceback.print_exc()
+
+    try:
+        baker = oelite.baker.OEliteBaker(options, args, config)
+    except FatalError:
+        return 1
+    except Exception, e:
+        fail()
         print "ERROR: initializing baker failed, aborting!"
+        return 1
+
+    try:
+        return baker.bake()
+    except FatalError:
+        return 1
+    except Exception, e:
+        fail()
+        print "ERROR: baker bake failed, aborting!"
         return 1
