@@ -141,7 +141,8 @@ specific command."""
                 # version.
 
                 confparser = parse.BakeryParser()
-                config = confparser.parse("conf/oe-lite.conf")
+                config = confparser.parse("conf/bakery.conf")
+
                 config_defaults(config)
                 config["TOPDIR"] = topdir
 
@@ -180,45 +181,69 @@ specific command."""
 def config_defaults(config):
     ok = True
 
-    BBPATH = config["BBPATH"]
-    if BBPATH:
-        BBPATH = BBPATH.split(":")
-    else:
-        BBPATH = ["."]
-        OE_MODULES = config["OE_MODULES"]
-        for submodule in OE_MODULES.split():
-            module_path = config["OE_MODULE_PATH_" + submodule]
-            if not module_path:
-                module_path = "meta/" + submodule
-            if os.path.basename(module_path.rstrip("/")) == "bitbake":
-                continue
-            BBPATH.append(module_path)
+    OEPATH = []
+    OERECIPES = []
+    PYTHONPATH = []
 
-    config["BBPATH"] = ":".join(map(os.path.abspath, BBPATH))
-    config["BBPATH_PRETTY"] = ":".join(BBPATH)
+    OESTACK = config.get("OESTACK") or ""
+    config["__oestack"] = []
+    for oestack in OESTACK.split():
+        oestack = oestack.split(";")
+        path = oestack[0]
+        params = {}
+        for param in oestack[1:]:
+            key, value = param.split("=", 1)
+            if key == "remote":
+                if not key in params:
+                    params[key] = []
+                name, url = value.split(",", 1)
+                params[key].append((name, url))
+            else:
+                params[key] = value
+        if path.startswith("meta/"):
+            if not "oepath" in params:
+                params["oepath"] = ""
+            if not "pythonpath" in params:
+                params["pythonpath"] = "lib"
+            if not "oerecipes" in params:
+                params["oerecipes"] = "*/*.oe"
+        if "srcuri" in params and params["srcuri"].startswith("git://"):
+            if not "protocol" in params:
+                params["protocol"] = "git"
+        config["__oestack"].append((path, params))
+        if "oepath" in params:
+            if params["oepath"] == "":
+                oepath = path
+            else:
+                oepath = os.path.join(path, params["oepath"])
+            OEPATH.append(oepath)
+            oerecipes_base = os.path.join(oepath, "recipes")
+            if os.path.isdir(oerecipes_base):
+                for oerecipes in params["oerecipes"].split(":"):
+                    OERECIPES.append(os.path.join(oerecipes_base, oerecipes))
+        if "pythonpath" in params:
+            if params["pythonpath"] == "":
+                PYTHONPATH.append(os.path.abspath(path))
+            else:
+                pythonpath = os.path.join(path, params["pythonpath"])
+                if os.path.exists(pythonpath):
+                    PYTHONPATH.append(os.path.abspath(pythonpath))
 
-    BBRECIPES = config["BBRECIPES"] or []
-    if BBRECIPES:
-        BBRECIPES = BBRECIPES.split(":")
-    else:
-        for i in range(len(BBPATH)):
-            bbrecipes = os.path.join(BBPATH[i], "recipes")
-            if os.path.isdir(bbrecipes):
-                BBRECIPES.append(os.path.join(bbrecipes, "*/*.bb"))
+    OEPATH.append(".")
+    if os.path.isdir("recipes"):
+        OERECIPES.append("recipes/*/*.oe")
 
-    config["BBRECIPES"] = ":".join(map(os.path.abspath, BBRECIPES))
-    config["BBRECIPES_PRETTY"] = ":".join(BBRECIPES)
+    config["OEPATH"] = ":".join(map(os.path.abspath, OEPATH))
+    config["OEPATH_PRETTY"] = ":".join(OEPATH)
 
-    for bbpath in BBPATH:
-        if os.path.basename(bbpath.rstrip("/")) == "bitbake":
-            continue
-        bblib = os.path.abspath(os.path.join(bbpath, "lib"))
-        if os.path.isdir(bblib):
-            sys.path.insert(0, bblib)
+    config["OERECIPES"] = ":".join(map(os.path.abspath, OERECIPES))
+    config["OERECIPES_PRETTY"] = ":".join(OERECIPES)
 
-    #debug("BBPATH = %s"%(config["BBPATH_PRETTY"]))
-    #debug("BBRECIPES = %s"%(config["BBRECIPES_PRETTY"]))
-    #debug("PYTHONPATH = %s"%sys.path)
+    sys.path = PYTHONPATH + sys.path
+
+    #print "OEPATH = %s"%(config["OEPATH_PRETTY"])
+    #print "OERECIPES = %s"%(config["OERECIPES_PRETTY"])
+    #print "PYTHONPATH = %s"%(PYTHONPATH)
 
     return
 

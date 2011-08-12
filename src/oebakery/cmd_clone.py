@@ -30,8 +30,8 @@ def run(parser, options, args, config):
     if args:
         parser.error("too many arguments")
 
-    if not oebakery.call('git clone %s %s'%(options.repository,
-                                            options.directory)):
+    if not oebakery.call('git clone --recursive %s %s'%(
+            options.repository, options.directory)):
         return 1
 
     topdir = oebakery.set_topdir(options.directory)

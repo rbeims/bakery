@@ -58,7 +58,7 @@ TOPDIR = None
 def set_topdir(dir):
     global TOPDIR
 
-    if not (os.path.exists(os.path.join(dir, "conf", "oe-lite.conf"))):
+    if not (os.path.exists(os.path.join(dir, "conf", "bakery.conf"))):
         die("Not a valid OE-lite repository: %s"%dir)
 
     TOPDIR = os.path.abspath(dir)
@@ -69,7 +69,7 @@ def set_topdir(dir):
 def locate_topdir():
     global TOPDIR
 
-    if (os.path.exists(os.path.join(os.getcwd(), 'conf', 'oe-lite.conf'))):
+    if (os.path.exists(os.path.join(os.getcwd(), 'conf', 'bakery.conf'))):
         # PWD might not be set correctly, so we have to try
         # os.getcwd() first, which is ok as long as we don't recurse
         # into it.  This was experienced when running under Buildbot.
@@ -88,7 +88,7 @@ def locate_topdir_recursive(dir):
     if dir == '/':
         return None
 
-    if (os.path.exists(os.path.join(dir, 'conf', 'oe-lite.conf'))):
+    if (os.path.exists(os.path.join(dir, 'conf', 'bakery.conf'))):
         return os.path.abspath(dir)
 
     return locate_topdir_recursive(os.path.dirname(dir))
@@ -102,7 +102,7 @@ def get_topdir():
 def read_config():
     config = ConfigParser.SafeConfigParser()
 
-    if not config.read(os.path.join("conf", "oe-lite.conf")):
+    if not config.read(os.path.join("conf", "bakery.conf")):
         die("ERROR: failed to read %s"%inifile)
 
     if not config.has_section('tmp'):

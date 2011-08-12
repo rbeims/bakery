@@ -6,64 +6,70 @@ from oebakery import die, err
 arguments = None
 description = """Update OE-lite development environment"""
 
+# oe update: (setup submodules based on OETASK in bakery.conf)
+#   git submodule sync
+#   git submodule add $url $path for missing submodules
+#     and: git submodule update --init --recursive $path
+#   change bakery repo .gitmodules submodule.$submodule.url if not right
+#   change submodule repo .git/config remote.origin.url if not right
+#     (or will this automagically be done by next submodule sync???)
+#   change submodule repo .git/config remote.origin.pushurl if not right
+#   if submodule is tracking a branch:
+#     if local $branch does not exist:
+#       git branch --track $branch origin/$branch
+#     elif submodule repo .git/config branch.$branch.merge != refs/heads/$branch:
+#       git branch --set-upstream $branch origin/$branch
+#   git submodule sync
+#   print warning for submodules not in OETASK
+#     (ask to add it to bakery.conf or remove it)
+#         
+#
+
+# oe pull:
+#   git pull in bakery repo
+#   oe init
+#   foreach module in OESTACK:
+#     check submodule status
+#     if submodule is missing:
+#       print error message, and skip submodule
+#     if HEAD is not in a local or remote branch:
+#       print error message, and skip submodule
+#     if submodule is tracking a branch: (ie. ;branch=something in OESTACK)
+#       if $branch is not checked out:
+#         git checkout $branch
+#       git pull in the submodule
+#     else:
+#       git submodule update --recursive
+#
+
 def run(parser, options, args, config=None):
     ok = True
+    oestack = config["__oestack"]
 
     if not os.path.exists('.git'):
         die("Aiee!  This is not a git repository!!")
 
-    OE_REMOTES = config["OE_REMOTES"] or ""
-    remotes = []
-    if OE_REMOTES:
-        for remote in OE_REMOTES.split():
-            url = config["OE_REMOTE_"+remote]
-            if not url:
-                err("OE_REMOTE_%s must be defined"%(remote))
-                ok = False
-            remotes.append((remote, url))
+    if not oebakery.call("git submodule sync"):
+        die("Failed to synchronize git submodules")
 
-    OE_MODULES = config["OE_MODULES"]
     submodules = []
-    #submodule_remotes = {}
-    if OE_MODULES:
+    for path, params in oestack:
+        if not params["srcuri"].startswith("git://"):
+            continue
+        url = "%s%s"%(params["protocol"], params["srcuri"][3:])
+        submodules.append((path, url, params))
 
-        for submodule in OE_MODULES.split():
+    for path, url, params in submodules:
+        if git_submodule_status(path) is not None:
+            continue
+        if not oebakery.call(
+            "git submodule add %s %s"%(url, path)):
+            die("Failed to add submodule")
+        if not oebakery.call(
+            "git submodule update --init --recursive %s"%(path)):
+            die("Failed to initialize submodule")
 
-            path = config["OE_MODULE_PATH_" + submodule]
-            url = config["OE_MODULE_URL_" + submodule]
-            pushurl = config["OE_MODULE_PUSHURL_" + submodule]
-            branch = config["OE_MODULE_BRANCH_" + submodule]
-
-            if not path:
-                path = "meta/" + submodule
-            if not url:
-                err("OE_MODULE_URL_%s most be defined"%(submodule))
-                ok = False
-            if not branch:
-                branch = "HEAD"
-
-            #submodule_remotes[submodule] = []
-            submodule_remotes = []
-            varname = "OE_MODULE_REMOTES_" + submodule
-            OE_MODULE_REMOTES = config[varname] or ""
-            for remote in OE_MODULE_REMOTES.split():
-                varname = "OE_MODULE_REMOTE_%s_%s"%(submodule, remote)
-                remote_url = config[varname]
-                if not url:
-                    err("%s must be defined"%(varname))
-                    ok = False
-                #submodule_remotes[submodule].append((remote, url))
-                submodule_remotes.append((remote, remote_url))
-
-            submodules.append((path, url, pushurl, branch, submodule_remotes))
-
-    if not ok:
-        die("OE-lite configuration error(s)")
-
-    for (name, url) in remotes:
-        if not git_update_remote(name, url):
-            err("update of remote %s failed"%(name))
-            ok = False
+    return True
 
     if os.path.exists('.gitmodules'):
         if not oebakery.call('git submodule init'):
