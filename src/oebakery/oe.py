@@ -18,12 +18,12 @@ def main():
     usage="""Usage: oe <command> [options]*
 
 Allowed oe commands are:
-  init        Setup new OE Bakery development environment
-  clone       Clone an OE Bakery development environment into a new directory
-  update      Update OE Bakery development environment accoring to configuration
-  pull        Pull updates from remote repositories
-  tmp         Manage TMPDIR directories
-  bake        Build recipe (call bitbake)
+  init        Setup new OE-lite repository
+  clone       Clone an OE-lite repository into a new directory
+  pull        Fetch and merge upstream changes
+  update      Update OE-lite repository setup according to configuration
+  bake        Build something
+  show        Show metadata
 
 See 'oe <command> -h' or 'oe help <command> for more information on a
 specific command."""
@@ -49,10 +49,6 @@ specific command."""
     parser.add_option("-Q", "--really-quiet",
                       action="store_true",
                       help="Sshhh!")
-
-    # HACK to force running from source directory
-    sys.path.insert(
-        0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
     try:
         import oebakery
@@ -130,20 +126,10 @@ specific command."""
             oebakery.chdir(topdir)
 
             if config is None:
-
-                #if cmd_name != "init":
-                #    if not "__oe_lite__" in dir(bb):
-                #        die("BitBake is not OE-lite Bitbake!")
-
-                # in case of clone/init, there might not be a
-                # topdir/bitbake/lib and we rely on bitbake being
-                # provided from host, and accept a normal BitBake
-                # version.
-
                 confparser = parse.BakeryParser()
                 config = confparser.parse("conf/bakery.conf")
-
-                config_defaults(config)
+                config_defaults(config, ("--debug" in cmd_args
+                                         or "-d" in cmd_args))
                 config["TOPDIR"] = topdir
 
         # Import the chosen command
@@ -178,7 +164,7 @@ specific command."""
     return exitcode
 
 
-def config_defaults(config):
+def config_defaults(config, debug=False):
     ok = True
 
     OEPATH = []
@@ -187,6 +173,7 @@ def config_defaults(config):
 
     OESTACK = config.get("OESTACK") or ""
     config["__oestack"] = []
+    config["__submodules"] = []
     for oestack in OESTACK.split():
         oestack = oestack.split(";")
         path = oestack[0]
@@ -211,6 +198,9 @@ def config_defaults(config):
             if not "protocol" in params:
                 params["protocol"] = "git"
         config["__oestack"].append((path, params))
+        if params["srcuri"].startswith("git://"):
+            url = "%s%s"%(params["protocol"], params["srcuri"][3:])
+            config["__submodules"].append((path, url, params))
         if "oepath" in params:
             if params["oepath"] == "":
                 oepath = path
@@ -241,9 +231,10 @@ def config_defaults(config):
 
     sys.path = PYTHONPATH + sys.path
 
-    #print "OEPATH = %s"%(config["OEPATH_PRETTY"])
-    #print "OERECIPES = %s"%(config["OERECIPES_PRETTY"])
-    #print "PYTHONPATH = %s"%(PYTHONPATH)
+    if debug:
+        print "OEPATH = %s"%(config["OEPATH_PRETTY"])
+        print "OERECIPES = %s"%(config["OERECIPES_PRETTY"])
+        print "PYTHONPATH = %s"%(PYTHONPATH)
 
     return
 

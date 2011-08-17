@@ -1,7 +1,7 @@
 import optparse, sys, os
 import oebakery
 
-arguments = "<repository> <directory>"
+arguments = "<repository> [directory]"
 description = """Clone an OE-lite development environment into a new directory
 
 Arguments:
@@ -27,9 +27,6 @@ def run(parser, options, args, config):
         if options.directory[-4:] == '.git':
             options.directory = options.directory[:-4]
 
-    if args:
-        parser.error("too many arguments")
-
     if not oebakery.call('git clone --recursive %s %s'%(
             options.repository, options.directory)):
         return 1
@@ -37,7 +34,9 @@ def run(parser, options, args, config):
     topdir = oebakery.set_topdir(options.directory)
     oebakery.chdir(options.directory)
 
+    oebakery.copy_local_conf_sample("conf")
+
     if not oebakery.call('git config push.default tracking'):
         print 'Failed to set push.default = tracking'
 
-    return ("init", ({}, []), config)
+    return ("update", ({}, []), config)
