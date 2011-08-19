@@ -106,8 +106,7 @@ class BakeryParser(object):
     def __init__(self, data=None):
         self.lexer = ply.lex.lex(module=self)
         tabmodule = self.__class__.__module__ + "_tab"
-        self.yacc = ply.yacc.yacc(module=self,
-                                  tabmodule=tabmodule, debug=0)
+        self.yacc = ply.yacc.yacc(module=self, debug=0, write_tables=0)
         if data is not None:
             self.data = data
         else:
