@@ -1,5 +1,5 @@
 import oebakery
-from oebakery import die, err, warn, info, debug
+from oebakery import die, err, warn, info, debug, FatalError
 import oelite.baker
 
 arguments = None
