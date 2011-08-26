@@ -80,6 +80,8 @@ def update_submodules(submodules):
 
 
 def check_submodule(path):
+    if not os.path.exists(path):
+        return True
     branches = git_branch_status(path, options="--contains HEAD")
     return len(branches) > 0
 
@@ -87,13 +89,16 @@ def update_submodule(path, fetch_url, params):
     push_url = params.get("push", None)
     ok = True
 
-    if not oebakery.call("git submodule sync -- %s"%(path)):
+    if (os.path.exists(path) and
+        not oebakery.call("git submodule sync -- %s"%(path))):
         err("Failed to synchronize git submodule")
 
     if git_submodule_status(path) is None:
         cmd = "git submodule add -f"
         if "branch" in params:
-            cmd += " -b %s"%(params["branch"])
+            branch = params["branch"]
+            if branch != "master":
+                cmd += " -b %s"%(params["branch"])
         if not oebakery.call("%s -- %s %s"%(cmd, fetch_url, path)):
             err("Failed to add submodule: %s"%(path))
             return False
