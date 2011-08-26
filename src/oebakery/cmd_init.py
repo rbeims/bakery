@@ -12,7 +12,7 @@ def run(parser, options, args, config=None):
 
     topdir = oebakery.set_topdir(os.path.curdir)
 
-    if not oebakery.call("git status", quiet=True):
+    if oebakery.call("git status", quiet=True):
         die("Already initialized:", topdir)
 
     if not oebakery.call("git init"):
