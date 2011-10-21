@@ -1,3 +1,63 @@
+oe-lite (1.0.0pre2~natty) natty; urgency=low
+
+  * natty build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 29 Aug 2011 15:48:49 +0200
+
+oe-lite (1.0.0pre2~maverick) maverick; urgency=low
+
+  * maverick build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 29 Aug 2011 15:48:45 +0200
+
+oe-lite (1.0.0pre2~lucid) lucid; urgency=low
+
+  * lucid build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 29 Aug 2011 15:48:41 +0200
+
+oe-lite (1.0.0pre2~oneiric) oneiric; urgency=low
+
+  * oneiric build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 29 Aug 2011 15:48:27 +0200
+
+oe-lite (1.0.0pre2) natty; urgency=low
+
+  * fixup packaging
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Fri, 29 Aug 2011 14:21:00 +0200
+
+oe-lite (1.0.0pre1~natty) natty; urgency=low
+
+  * natty build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Fri, 26 Aug 2011 11:14:25 +0200
+
+oe-lite (1.0.0pre1~maverick) maverick; urgency=low
+
+  * maverick build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Fri, 26 Aug 2011 11:14:21 +0200
+
+oe-lite (1.0.0pre1~lucid) lucid; urgency=low
+
+  * lucid build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Fri, 26 Aug 2011 11:14:18 +0200
+
+oe-lite (1.0.0pre1~oneiric) oneiric; urgency=low
+
+  * oneiric build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Fri, 26 Aug 2011 11:14:10 +0200
+
+oe-lite (1.0.0pre1) natty; urgency=low
+
+  * rename package to oe-lite
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Fri, 26 Aug 2011 08:52:23 +0200
+
 oe-bakery (0.16.5~hardy) hardy; urgency=low
 
   * hardy build

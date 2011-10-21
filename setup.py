@@ -1,32 +1,40 @@
 #! /usr/bin/env python
-from ez_setup import use_setuptools
-use_setuptools()
+
+#import sys
+#import os
+#sys.path.append(os.path.join(os.path.dirname(
+#            os.path.abspath(sys.argv[0])),
+#            "/setuptools/setuptools-0.6c11-py2.6.egg"))
+#from ez_setup import use_setuptools
+#use_setuptools()
+
 from setuptools import setup, find_packages
-import sys, os
+
 try:
     import stdeb
 except ImportError:
     print 'Warning: cannot find stdeb module'
 
-version = '1.0.0pre1'
+version = '1.0.0pre2'
 
-setup(name='oe-bakery',
+setup(name='oe-lite',
       version=version,
-      description="OE-Bakery - OpenEmbedded Development Environment Tool",
+      description="OE-lite - embedded Linux platform development kit",
       long_description="""\
-OE-Bakery - A tool for making working with BitBake and OpenEmbedded easier""",
+A tool for building complete embedded Linux platforms""",
       classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
       keywords='',
       author="Esben Haabendal",
-      author_email="eha@doredevelopment.dk",
+      author_email="esben.haabendal@prevas.dk",
       license="GPL",
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+      #packages=['oebakery'],
       include_package_data=True,
       zip_safe=False,
       install_requires=[
           # -*- Extra requirements: -*-
       ],
-      url="http://dev.doredevelopment.dk/wiki/OpenEmbeddedBakery",
+      url="http://oe-lite.org/",
       entry_points = {
         'console_scripts': [
             'oe = oebakery.oe:main',

@@ -1,17 +1,17 @@
-Source: oe-bakery
-Maintainer: Esben Haabendal <eha@doredevelopment.dk>
+Source: oe-lite
+Maintainer: Esben Haabendal <esben.haabendal@prevas.dk>
 Section: python
 Priority: optional
-Build-Depends: python-setuptools (>= 0.6b3), debhelper (>= 7), python-support (>= 0.7.5)
-Standards-Version: 3.8.3
-XS-Python-Version: current
+Build-Depends: python-all (>=2.6), python-setuptools (>= 0.6b3), debhelper (>= 7), python-support (>= 0.90)
+Standards-Version: 3.9.1
 
-Package: oe-bakery
+Package: oe-lite
 Architecture: all
-Depends: ${python:Depends}, python-pkg-resources, sed, wget, cvs, subversion, git-core, mercurial, coreutils, unzip, texinfo, libsdl1.2-dev, docbook-utils, gawk, python-pysqlite2, libxml2-utils, xmlto, help2man, diffstat, texi2html, make, gcc, build-essential, g++, bison, flex, libncurses-dev, automake (>= 1.10), libtool (>= 1.5.26)
-Recommends: ccache, python-psyco
-Suggests: 
-XB-Python-Version: ${python:Versions}
-Provides: ${python:Provides}
-Description: OE-Bakery - OpenEmbedded Development Environment Tool
- OE-Bakery - A tool for making working with BitBake and OpenEmbedded easier
+Depends: ${misc:Depends}, ${python:Depends}, python-magic, python-ply, python-urlgrabber, python-pysqlite2, python-pkg-resources, python-dev, coreutils (>=7.4), sed (>=4.2.1), git-core (>=1.7.4), cvs, subversion, mercurial, quilt, gawk, texinfo, automake (>= 1.10), autoconf, libtool (>= 1.5.26), curl, texi2html, diffstat, openjade, groff, mtd-utils, build-essential, make, gcc, g++, binutils, bison, flex, bc, ncurses-dev, unzip, lzma, gtk-doc-tools, docbook-utils, libxml2-utils, xmlto, help2man, libglib2.0-dev
+Recommends: autopoint
+#Provides: ${python:Provides}
+Description: embedded Linux platform development kit
+ As an offspring from the popular OpenEmbedded project, OE-lite aims at
+ re-using all the good parts of the OpenEmbedded design and
+ architecture, improving it where possible, with a more concentrated
+ focus on deeply embedded systems.
