@@ -69,7 +69,7 @@ def update_submodules(submodules):
             ok = False
             continue
         if not update_submodule(path, url, params):
-            err("update of submodule %s failed"%(submodule[0]))
+            err("update of submodule %s failed"%(path))
             ok = False
 
     if not ok:
@@ -177,7 +177,7 @@ def update_submodule(path, fetch_url, params):
                 ok = False
     else:
         if not oebakery.call(
-            "git submodule update --recursive %s"%(path)):
+            "git submodule update --init --recursive %s"%(path)):
             err("Failed to initialize submodule: %s"%(path))
             ok = False
 
