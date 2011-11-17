@@ -1,3 +1,75 @@
+oe-lite (1.0.0pre4~natty) natty; urgency=low
+
+  * natty build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 24 Oct 2011 13:50:07 +0200
+
+oe-lite (1.0.0pre4~maverick) maverick; urgency=low
+
+  * maverick build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 24 Oct 2011 13:50:03 +0200
+
+oe-lite (1.0.0pre4~lucid) lucid; urgency=low
+
+  * lucid build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 24 Oct 2011 13:49:59 +0200
+
+oe-lite (1.0.0pre4~oneiric) oneiric; urgency=low
+
+  * oneiric build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Mon, 24 Oct 2011 13:49:36 +0200
+
+oe-lite (1.0.0pre3~natty) natty; urgency=low
+
+  * natty build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Fri, 21 Oct 2011 14:08:38 +0200
+
+oe-lite (1.0.0pre3~maverick) maverick; urgency=low
+
+  * maverick build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Fri, 21 Oct 2011 14:08:34 +0200
+
+oe-lite (1.0.0pre3~lucid) lucid; urgency=low
+
+  * lucid build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Fri, 21 Oct 2011 14:08:30 +0200
+
+oe-lite (1.0.0pre3~oneiric) oneiric; urgency=low
+
+  * oneiric build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Fri, 21 Oct 2011 14:08:26 +0200
+
+oe-lite (1.0.0pre2~natty) natty; urgency=low
+
+  * natty build
+
+ -- Esben Haabendal <esben@arh128>  Fri, 21 Oct 2011 12:09:08 +0200
+
+oe-lite (1.0.0pre2~maverick) maverick; urgency=low
+
+  * maverick build
+
+ -- Esben Haabendal <esben@arh128>  Fri, 21 Oct 2011 12:09:07 +0200
+
+oe-lite (1.0.0pre2~lucid) lucid; urgency=low
+
+  * lucid build
+
+ -- Esben Haabendal <esben@arh128>  Fri, 21 Oct 2011 12:09:06 +0200
+
+oe-lite (1.0.0pre2~oneiric) oneiric; urgency=low
+
+  * oneiric build
+
+ -- Esben Haabendal <esben@arh128>  Fri, 21 Oct 2011 12:09:04 +0200
+
 oe-lite (1.0.0pre2~natty) natty; urgency=low
 
   * natty build

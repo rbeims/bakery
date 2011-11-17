@@ -2,7 +2,7 @@
 
 version=`grep -e '^version = ' setup.py|sed -e "s%.*'\(.*\)'.*%\1%;"`
 
-#eval `gpg-agent --daemon`
+eval `gpg-agent --daemon`
 
 LEAD_DISTRO="oneiric"
 OLD_DISTROS="lucid maverick natty"
@@ -11,7 +11,7 @@ export DH_ALWAYS_EXCLUDE=.git
 
 for distro in $LEAD_DISTRO $OLD_DISTROS ; do
   debchange --distribution ${distro} --newversion ${version}~${distro} -b ${distro} build
-  debuild -S -sa
+  debuild -S -k5B997C4F -sa
 done
 
 cd ..
