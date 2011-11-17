@@ -82,7 +82,7 @@ def update_submodules(submodules):
 def check_submodule(path):
     if not os.path.exists(path):
         return True
-    branches = git_branch_status(path, options="--contains HEAD")
+    branches = git_branch_status(path, options="-a --contains HEAD")
     return len(branches) > 0
 
 def update_submodule(path, fetch_url, params):
