@@ -233,7 +233,7 @@ def git_submodule_status(path):
 def git_update_remote(name, url, path=None):
     ok = True
 
-    url_split = url.split()
+    url_split = url.split(",")
     if len(url_split) < 1 or len(url_split) > 2:
         err("Invalid remote url: %s"%(url))
         return False
