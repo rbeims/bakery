@@ -169,7 +169,8 @@ def update_submodule(path, fetch_url, params):
         current_merge = oebakery.call(
             "git config --get branch.%s.merge"%(branch),
             dir=path, quiet=True)
-        if (current_remote.strip() != "origin" or
+        if (current_remote is  None or current_merge is None or
+            current_remote.strip() != "origin" or
             current_merge.strip() != "refs/heads/%s"%(branch)):
             if not oebakery.call(
                 "git branch --set-upstream %s origin/%s"%(branch, branch),
