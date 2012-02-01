@@ -298,7 +298,8 @@ def git_update_remote(name, url, path=None):
                                  dir=path):
                 err("failed to set pushurl %s for %s"%(push_url, name))
                 ok = False
-        return True
+
+        return ok
 
     # change (fetch) url if not matching
     if remotes_fetch[name] != fetch_url:
@@ -324,4 +325,4 @@ def git_update_remote(name, url, path=None):
                 err("failed to unset pushurl for %s"%(name))
                 ok = False
 
-    return True
+    return ok
