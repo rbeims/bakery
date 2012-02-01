@@ -144,6 +144,8 @@ def call(cmd, dir=None, quiet=False, success_returncode=0):
             cmd = cmd + ' ' + arg
 
     if dir:
+        if not os.path.exists(dir):
+            return None
         pwd = os.getcwd()
         chdir(dir, quiet=True)
 
@@ -174,7 +176,12 @@ def call(cmd, dir=None, quiet=False, success_returncode=0):
 
 
 def chdir(dir, quiet=False):
-    if os.path.realpath(os.path.normpath(dir)) == os.path.normpath(os.getcwd()):
+    try:
+        cwd = os.getcwd()
+    except OSError, e:
+        cwd = None
+    if (cwd and
+        os.path.realpath(os.path.normpath(dir)) == os.path.normpath(cwd)):
         return
 
     if not quiet:
