@@ -142,6 +142,10 @@ def update_submodule(path, fetch_url, params):
             err("Failed to set origin push url %s for %s"%(push_url, path))
             ok = False
 
+    if not oebakery.call('git remote update --prune origin', dir=path):
+        err("failed to update remote origin")
+        ok = False
+
     # remove override of push url if not specified
     if not push_url and current_url:
         if not oebakery.call('git config --unset remote.origin.pushurl',
