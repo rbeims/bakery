@@ -58,7 +58,7 @@ def run(parser, options, args, config):
             paths.append(path)
             submodules.append((path, url, params))
 
-    return update_submodules(submodules)
+    return not update_submodules(submodules)
 
 
 def update_submodules(submodules):
