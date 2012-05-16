@@ -1,3 +1,69 @@
+oe-lite (1.0.0~oneiric) oneiric; urgency=low
+
+  * oneiric build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 16 May 2012 14:10:11 +0200
+
+oe-lite (1.0.0~natty) natty; urgency=low
+
+  * natty build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 16 May 2012 14:10:07 +0200
+
+oe-lite (1.0.0~maverick) maverick; urgency=low
+
+  * maverick build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 16 May 2012 14:10:03 +0200
+
+oe-lite (1.0.0~lucid) lucid; urgency=low
+
+  * lucid build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 16 May 2012 14:09:59 +0200
+
+oe-lite (1.0.0~precise) precise; urgency=low
+
+  * precise build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 16 May 2012 14:09:48 +0200
+
+oe-lite (1.0.0) oneiric; urgency=low
+
+  * Fixes for init, update and pull commands.
+  * Long overdue, this is now very much to be considered a stable
+    API, so let's call it 1.0.0.
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 16 May 2012 14:08:58 +0200
+
+oe-lite (1.0.0) oneiric; urgency=normal
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 02 Feb 2012 15:18:47 +0100
+
+oe-lite (1.0.0pre8~natty) natty; urgency=low
+
+  * natty build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 02 Feb 2012 15:18:47 +0100
+
+oe-lite (1.0.0pre8~maverick) maverick; urgency=low
+
+  * maverick build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 02 Feb 2012 15:18:43 +0100
+
+oe-lite (1.0.0pre8~lucid) lucid; urgency=low
+
+  * lucid build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 02 Feb 2012 15:18:39 +0100
+
+oe-lite (1.0.0pre8~oneiric) oneiric; urgency=low
+
+  * oneiric build
+
+ -- Esben Haabendal <eha@doredevelopment.dk>  Thu, 02 Feb 2012 15:18:26 +0100
+
 oe-lite (1.0.0pre7~natty) natty; urgency=low
 
   * natty build

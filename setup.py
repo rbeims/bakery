@@ -15,7 +15,7 @@ try:
 except ImportError:
     print 'Warning: cannot find stdeb module'
 
-version = '1.0.0pre7'
+version = '1.0.0'
 
 setup(name='oe-lite',
       version=version,

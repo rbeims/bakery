@@ -2,10 +2,10 @@
 
 version=`grep -e '^version = ' setup.py|sed -e "s%.*'\(.*\)'.*%\1%;"`
 
-#eval `gpg-agent --daemon`
+eval `gpg-agent --daemon`
 
-LEAD_DISTRO="oneiric"
-OLD_DISTROS="lucid maverick natty"
+LEAD_DISTRO="precise"
+OLD_DISTROS="lucid maverick natty oneiric"
 
 export DH_ALWAYS_EXCLUDE=.git
 
