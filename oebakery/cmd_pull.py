@@ -48,10 +48,9 @@ def run(parser, options, args, config):
 
     if options.main:
         if options.remotes and not git_remote_update():
-            return False
+            return 1
         if not git_pull():
-            return False
-
+            return 1
 
     if options.remotes:
         for path in paths:
@@ -84,7 +83,7 @@ def run(parser, options, args, config):
             if not git_pull(path, params["branch"]):
                 ok = False
 
-    return ok
+    return not ok
 
 
 def git_pull(path=None, branch=None):
