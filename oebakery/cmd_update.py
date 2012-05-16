@@ -94,7 +94,7 @@ def update_submodule(path, fetch_url, params):
         err("Failed to synchronize git submodule")
 
     status = git_submodule_status(path)
-    if status[0] == "-":
+    if status and status[0] == "-":
         cmd = "git submodule update --init --recursive"
         if not oebakery.call("%s %s"%(cmd, path)):
             err("Failed to add submodule: %s"%(path))
