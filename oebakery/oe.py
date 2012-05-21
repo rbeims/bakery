@@ -11,7 +11,7 @@ import glob
 import hashlib
 
 
-VERSION = "%prog 0.1foobar"
+VERSION = "%prog 3.0.0"
 
 
 def main():
