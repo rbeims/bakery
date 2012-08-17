@@ -144,8 +144,17 @@ def call(cmd, dir=None, quiet=False, success_returncode=0):
     if dir:
         if not os.path.exists(dir):
             return None
-        pwd = os.getcwd()
-        chdir(dir, quiet=True)
+    else:
+        dir = ""
+
+    # Git seems to have a problem with long paths __and__ generates
+    # long relative paths when run from a symlinked path.  To
+    # workaround this, we always switch to realpath before running any
+    # commands.
+    rdir = os.path.realpath(dir)
+
+    pwd = os.getcwd()
+    chdir(rdir, quiet=True)
 
     if not quiet:
         if dir:
@@ -167,8 +176,7 @@ def call(cmd, dir=None, quiet=False, success_returncode=0):
         if returncode == success_returncode:
             retval = True
 
-    if dir:
-        chdir(pwd, quiet=True)
+    chdir(pwd, quiet=True)
 
     return retval
 
