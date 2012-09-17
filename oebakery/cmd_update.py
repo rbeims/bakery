@@ -160,7 +160,20 @@ def update_submodule(path, fetch_url, params):
             ok = False
 
     # 
-    if "branch" in params:
+    if "tag" in params:
+        tag = params["tag"]
+        if not oebakery.call("git checkout --detach refs/tags/%s"%(tag),
+                             dir=path):
+            err("Failed to checkout submodule %s tag %s"%(
+                    path, tag))
+            return False
+    elif "commit" in params:
+        commit = params["commit"]
+        if not oebakery.call("git checkout --detach %s"%(commit), dir=path):
+            err("Failed to checkout submodule %s commit %s"%(
+                    path, commit))
+            return False
+    elif "branch" in params:
         branch = params["branch"]
         branches = git_branch_status(path)
         if branch in branches:
