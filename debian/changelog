@@ -1,3 +1,33 @@
+oe-lite (3.0.1~oneiric) oneiric; urgency=low
+
+  * oneiric build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Fri, 17 Aug 2012 16:15:11 +0200
+
+oe-lite (3.0.1~natty) natty; urgency=low
+
+  * natty build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Fri, 17 Aug 2012 16:15:07 +0200
+
+oe-lite (3.0.1~maverick) maverick; urgency=low
+
+  * maverick build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Fri, 17 Aug 2012 16:15:03 +0200
+
+oe-lite (3.0.1~lucid) lucid; urgency=low
+
+  * lucid build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Fri, 17 Aug 2012 16:15:00 +0200
+
+oe-lite (3.0.1~precise) precise; urgency=low
+
+  * precise build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Fri, 17 Aug 2012 16:14:41 +0200
+
 oe-lite (3.0.0~oneiric) oneiric; urgency=low
 
   * oneiric build
