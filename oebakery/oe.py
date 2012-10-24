@@ -30,6 +30,11 @@ specific command."""
     # FIXME: generate the list of allowed commands dynamically based
     # on available oebakery.cmd_* modules
 
+    # Force stdout and stderr into un-buffered mode.  This seems to unbreak
+    # the FUBAR stdout/stderr handling in Jenkins for now...
+    sys.stdout = os.fdopen(sys.stdout.fileno(), "w", 0)
+    sys.stderr = os.fdopen(sys.stderr.fileno(), "w", 0)
+
     parser = optparse.OptionParser(
         """Usage: %prog [OPTIONS] <COMMAND>""",
         version=VERSION)
