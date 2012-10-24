@@ -197,10 +197,9 @@ def config_defaults(config, debug=False):
         if "srcuri" in params and params["srcuri"].startswith("git://"):
             if not "protocol" in params:
                 params["protocol"] = "git"
-        config["__oestack"].append((path, params))
-        if params["srcuri"].startswith("git://"):
             url = "%s%s"%(params["protocol"], params["srcuri"][3:])
             config["__submodules"].append((path, url, params))
+        config["__oestack"].append((path, params))
         if "oepath" in params:
             if params["oepath"] == "":
                 oepath = path
