@@ -1,3 +1,47 @@
+oe-lite (3.1.0~quantal) quantal; urgency=low
+
+  * quantal build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 24 Oct 2012 11:32:59 +0200
+
+oe-lite (3.1.0~oneiric) oneiric; urgency=low
+
+  * oneiric build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 24 Oct 2012 11:32:55 +0200
+
+oe-lite (3.1.0~natty) natty; urgency=low
+
+  * natty build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 24 Oct 2012 11:32:52 +0200
+
+oe-lite (3.1.0~maverick) maverick; urgency=low
+
+  * maverick build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 24 Oct 2012 11:32:48 +0200
+
+oe-lite (3.1.0~lucid) lucid; urgency=low
+
+  * lucid build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 24 Oct 2012 11:32:44 +0200
+
+oe-lite (3.1.0~precise) precise; urgency=low
+
+  * precise build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 24 Oct 2012 11:32:34 +0200
+
+oe-lite (3.1.0) precise; urgency=low
+
+  * Add support for tag and commit layer parameters
+  * Fix support for layers without a srcuri parameter
+  * Force stdout and stderr into un-buffered mode
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 24 Oct 2012 11:25:09 +0200
+
 oe-lite (3.0.1~oneiric) oneiric; urgency=low
 
   * oneiric build
