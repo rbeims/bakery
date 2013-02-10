@@ -8,14 +8,20 @@
 #from ez_setup import use_setuptools
 #use_setuptools()
 
+import oebakery
+version = oebakery.__version__
+
+import sys
+if "--version" in sys.argv:
+    print version
+    sys.exit(0)
+
 from setuptools import setup, find_packages
 
 try:
     import stdeb
 except ImportError:
     print 'Warning: cannot find stdeb module'
-
-version = '3.1.0'
 
 setup(name='oe-lite',
       version=version,

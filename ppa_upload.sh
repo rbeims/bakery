@@ -1,6 +1,6 @@
 #!/bin/sh
 
-version=`grep -e '^version = ' setup.py|sed -e "s%.*'\(.*\)'.*%\1%;"`
+version=`./setup.py --version`
 
 eval `gpg-agent --daemon`
 
