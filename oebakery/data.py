@@ -187,11 +187,11 @@ class BakeryData:
 
     def expand(self, string, method=FULL_EXPANSION):
         """Expand string using variable data.
-    
+
         Arguments:
         string -- String to expand
         method -- Expansion method (default: FULL_EXPANSION)
-    
+
         Expansion methods:
         NO_EXPANSION -- no recursive expansion
         FULL_EXPANSION -- full expansion, all variables must be expanded

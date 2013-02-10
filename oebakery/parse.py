@@ -161,15 +161,15 @@ class BakeryParser(object):
     def t_PREDOT(self, t):
         r'\.='
         return t
-    
+
     def t_LAZYASSIGN(self, t):
         r'\?\?='
         return t
-    
+
     def t_WEAKASSIGN(self, t):
         r'\?='
         return t
-    
+
     def t_EXPASSIGN(self, t):
         r':='
         return t
@@ -181,7 +181,7 @@ class BakeryParser(object):
     def t_POSTDOT(self, t):
         r'=\.'
         return t
-    
+
     def t_ASSIGN(self, t):
         r'='
         return t
