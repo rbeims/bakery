@@ -9,3 +9,4 @@ oe-bakery_*~*_source.changes
 oe-bakery_*~*_source.oe-bakery.upload
 oe_bakery.egg-info
 oe_lite.egg-info
+oe-lite-bakery-*.tar.*
