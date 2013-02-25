@@ -1,248 +1,128 @@
 #!/usr/bin/env python
 
+VERSION = "4"
+
+# New arguments strategy: oe [bakery options] <command> [command options]
+#
+# the bakery options should only apply to the bakery tool itself, and not the
+# command as such (even if a builtin command).  Only bakery options supported
+# are "-d|--debug" for bakery tool debugging, "-v|--version" for bakery tool
+# version information, "-h|--help" for general bakery tool usage information.
+
 import sys
 import os
 import optparse
-import dircache
-import subprocess
-import string
-import re
-import glob
-import hashlib
+import logging
 
+# Force stdout and stderr into un-buffered mode.  This seems to unbreak the
+# FUBAR stdout/stderr handling in Jenkins for now...
+sys.stdout = os.fdopen(sys.stdout.fileno(), "w", 0)
+sys.stderr = os.fdopen(sys.stderr.fileno(), "w", 0)
 
-VERSION = "%prog 3.1.0"
+# Parse bakery command-line options
+parser = optparse.OptionParser(
+    """
+  %prog [--version] [-h|--help] [-d|--debug] <command> [options] [<args>]""",
+    version="OE-lite Bakery %s"%(VERSION))
+parser.add_option("-d", "--debug",
+                  action="store_true",
+                  help="Debug the OE-lite Bakery tool itself")
+parser.disable_interspersed_args()
+bakery_options, cmd_argv = parser.parse_args(sys.argv[1:])
 
+def module_version(module):
+    try:
+        return module.__version__
+    except AttributeError:
+        return "unknown"
 
-def main():
-    usage="""Usage: oe <command> [options]*
-
-Allowed oe commands are:
-  init        Setup new OE-lite repository
-  clone       Clone an OE-lite repository into a new directory
-  pull        Fetch and merge upstream changes
-  update      Update OE-lite repository setup according to configuration
-  bake        Build something
-  show        Show metadata
-
-See 'oe <command> -h' or 'oe help <command> for more information on a
-specific command."""
-    # FIXME: generate the list of allowed commands dynamically based
-    # on available oebakery.cmd_* modules
-
-    # Force stdout and stderr into un-buffered mode.  This seems to unbreak
-    # the FUBAR stdout/stderr handling in Jenkins for now...
-    sys.stdout = os.fdopen(sys.stdout.fileno(), "w", 0)
-    sys.stderr = os.fdopen(sys.stderr.fileno(), "w", 0)
-
-    parser = optparse.OptionParser(
-        """Usage: %prog [OPTIONS] <COMMAND>""",
-        version=VERSION)
-
-    parser.add_option("-v", "--verbose",
-                      action="store_true",
-                      help="make noise")
-
-    parser.add_option("-q", "--quiet",
-                      action="store_true",
-                      help="don't make so much noise")
-
-    parser.add_option("-d", "--debug",
-                      action="store_true",
-                      help="make a lot of noise")
-
-    parser.add_option("-Q", "--really-quiet",
-                      action="store_true",
-                      help="Sshhh!")
-
+# Import oebakery modules
+try:
+    import oebakery
+    if not module_version(oebakery) != VERSION:
+        del sys.modules["oebakery"]
+        del oebakery
+        raise Exception()
+except:
+    if bakery_options.debug:
+        print "DEBUG: bakery: importing oebakery module from source directory"
+    sys.path.insert(
+        0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
     try:
         import oebakery
-    except ImportError, e:
-        # hack to be able to run from source directory
-        sys.path.insert(
-            0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-        try:
-            import oebakery
-        except ImportError, e:
-            print >>sys.stderr, "FATAL: Cannot find OE-lite Bakery module"
+        version = module_version(oebakery)
+        if version != VERSION:
+            print >>sys.stderr, "CRITICAL: bad oebakery module version: %s (expected: %s)"%(version, VERSION)
             sys.exit(1)
+    except ImportError, e:
+        print >>sys.stderr, "CRITICAL: cannot import oebakery module"
+        sys.exit(1)
 
-    from oebakery import die, err, warn, info, debug
-    import parse
-    import data
+# Initialize logging
+logger = oebakery.logger
+if bakery_options.debug:
+    logger.setLevel(logging.DEBUG)
+else:
+    logger.setLevel(logging.INFO)
 
-    # Supported commands
-    cmds = ("clone", "init", "update", "pull", "bake", "show", "tmp")
+logger.debug("OE-lite Bakery %s", oebakery.__version__)
+logger.debug("bakery_options = %s", bakery_options)
+logger.debug("cmd_argv = %r", cmd_argv)
 
-    # Look for a valid COMMAND
-    def find_cmd(args, cmds):
-        index = next((i for i in xrange(len(args))
-                      if args[i] in cmds), None)
-        return index
-    cmd_index = find_cmd(sys.argv[1:], ("help",) + cmds)
+# Show list of available commands
+if not cmd_argv or (len(cmd_argv) == 1 and cmd_argv[0] == "help"):
+    config = oebakery.parse.parse_bakery_conf()
+    oebakery.cmd.add_builtin_cmds()
+    oebakery.cmd.add_manifest_cmds()
+    usage = parser.get_usage() + "\n" + oebakery.cmd.cmds_usage()
+    print usage
+    sys.exit(1)
 
-    # Support "help" argument as alias for -h/--help option
-    if cmd_index is not None and sys.argv[1 + cmd_index] == "help":
-        sys.argv[1 + cmd_index] = "-h"
-        cmd_index = find_cmd(sys.argv[1:], cmds)
+if cmd_argv[0] == "help":
+    cmd_argv = cmd_argv[1:] + ["-h"]
 
-    # Add list of commands to usage
-    if cmd_index is None:
-        usage = parser.get_usage()
-        usage += "\nCommands:"
-        for cmd in cmds:
-            usage += "\n  %-21s "%(cmd)
-            # FIXME: dynamically add usage description from cmd_*.DESCRIPTION
-            usage += "TBD"
-        parser.set_usage(usage)
-        (options, args) = parser.parse_args()
-        parser.error("You must specify a valid COMMAND argument")
+config = None
 
-    def cmd_usage(parser, cmd_name, cmd):
-        try:
-            description = cmd.description
-        except AttributeError, e:
-            description = ""
-        try:
-            if cmd.arguments:
-                arguments = " " + cmd.arguments
-            else:
-                arguments = ""
-        except AttributeError, e:
-            arguments = ""
-        parser.set_usage(
-            """Usage: %%prog [OPTIONS] %s%s
+while cmd_argv:
+    logger.debug(" ".join(cmd_argv))
+    cmd_name = cmd_argv.pop(0)
+    oebakery.cmd.clear()
+    oebakery.cmd.add_builtin_cmds()
+    cmd = oebakery.cmd.get_cmd(cmd_name)
 
-  %s."""%(cmd_name, arguments, description))
+    if config is None and (cmd is None or not "no-bakery-conf" in cmd.flags):
+        config = oebakery.parse.parse_bakery_conf()
 
-    # Setup first command to run
-    cmd_args = sys.argv[1:]
-    cmd_name = cmd_args[cmd_index]
-    del cmd_args[cmd_index]
-    topdir = None
-    config = None
+    if cmd is None:
+        oebakery.cmd.add_manifest_cmds()
+        cmd = oebakery.cmd.get_cmd(cmd_name)
 
-    while cmd_name:
+    if cmd is None:
+        logger.critical("Invalid command: %s", cmd_name)
+        logger.info("Use '%s help' to get list of available commands.",
+                     os.path.basename(sys.argv[0]))
+        sys.exit(1)
 
-        if cmd_name != "clone":
+    parser = oebakery.cmd.cmd_parser(cmd)
+    if parser is None:
+        logger.critical("%s failed", cmd.name)
+        sys.exit(1)
+    cmd_options, cmd_args = parser.parse_args(cmd_argv)
 
-            if topdir is None:
-                topdir = oebakery.locate_topdir()
-            oebakery.chdir(topdir)
+    ret = oebakery.cmd.call(cmd, "parse_args", cmd_options, cmd_args)
+    if ret:
+        logger.critical("%s failed: %s", cmd.name, ret)
+        sys.exit(1)
 
-            if config is None:
-                confparser = parse.BakeryParser()
-                config = confparser.parse("conf/bakery.conf")
-                config_defaults(config, ("--debug" in cmd_args
-                                         or "-d" in cmd_args))
-                config["TOPDIR"] = topdir
-
-        # Import the chosen command
-        cmd = __import__("oebakery.cmd_" + cmd_name,
-                         globals(), locals(),
-                         ["run", "description", "arguments"], -1)
-
-        # Adjust usage
-        if parser:
-            cmd_usage(parser, cmd_name, cmd)
-
-        if "add_parser_options" in dir(cmd):
-            cmd.add_parser_options(parser)
-
-        if parser:
-            (options, cmd_args) = parser.parse_args(cmd_args)
-        else:
-            (options, cmd_args) = cmd_args
-
-        if options:
-            oebakery.DEBUG = options.debug
-
-        exitcode = cmd.run(parser, options, cmd_args, config)
-
-        if isinstance(exitcode, int):
-            break
-
-        (cmd_name, cmd_args, config) = exitcode
-        parser = None
+    ret = oebakery.cmd.call(cmd, "run", cmd_options, cmd_args, config)
+    if isinstance(ret, list):
+        cmd_argv = ret
         continue
+    elif ret:
+        logger.critical("%s failed: %s", cmd.name, ret)
+        sys.exit(1)
+    else:
+        cmd_argv = []
 
-    return exitcode
-
-
-def config_defaults(config, debug=False):
-    ok = True
-
-    OEPATH = []
-    OERECIPES = []
-    PYTHONPATH = []
-
-    OESTACK = config.get("OESTACK") or ""
-    config["__oestack"] = []
-    config["__submodules"] = []
-    for oestack in OESTACK.split():
-        oestack = oestack.split(";")
-        path = oestack[0]
-        params = {}
-        for param in oestack[1:]:
-            key, value = param.split("=", 1)
-            if key == "remote":
-                if not key in params:
-                    params[key] = []
-                name, url = value.split(",", 1)
-                params[key].append((name, url))
-            else:
-                params[key] = value
-        if path.startswith("meta/"):
-            if not "oepath" in params:
-                params["oepath"] = ""
-            if not "pythonpath" in params:
-                params["pythonpath"] = "lib"
-            if not "oerecipes" in params:
-                params["oerecipes"] = "*/*.oe"
-        if "srcuri" in params and params["srcuri"].startswith("git://"):
-            if not "protocol" in params:
-                params["protocol"] = "git"
-            url = "%s%s"%(params["protocol"], params["srcuri"][3:])
-            config["__submodules"].append((path, url, params))
-        config["__oestack"].append((path, params))
-        if "oepath" in params:
-            if params["oepath"] == "":
-                oepath = path
-            else:
-                oepath = os.path.join(path, params["oepath"])
-            OEPATH.append(oepath)
-            oerecipes_base = os.path.join(oepath, "recipes")
-            if os.path.isdir(oerecipes_base):
-                for oerecipes in params["oerecipes"].split(":"):
-                    OERECIPES.append(os.path.join(oerecipes_base, oerecipes))
-        if "pythonpath" in params:
-            if params["pythonpath"] == "":
-                PYTHONPATH.append(os.path.abspath(path))
-            else:
-                pythonpath = os.path.join(path, params["pythonpath"])
-                if os.path.exists(pythonpath):
-                    PYTHONPATH.append(os.path.abspath(pythonpath))
-
-    OEPATH.append(".")
-    if os.path.isdir("recipes"):
-        OERECIPES.append("recipes/*/*.oe")
-
-    config["OEPATH"] = ":".join(map(os.path.abspath, OEPATH))
-    config["OEPATH_PRETTY"] = ":".join(OEPATH)
-
-    config["OERECIPES"] = ":".join(map(os.path.abspath, OERECIPES))
-    config["OERECIPES_PRETTY"] = ":".join(OERECIPES)
-
-    sys.path = PYTHONPATH + sys.path
-
-    if debug:
-        print "OEPATH = %s"%(config["OEPATH_PRETTY"])
-        print "OERECIPES = %s"%(config["OERECIPES_PRETTY"])
-        print "PYTHONPATH = %s"%(PYTHONPATH)
-
-    return
-
-
-if __name__ == "__main__":
-    exitcode = main()
-    sys.exit(exitcode)
+logger.debug("all done")
+sys.exit(0)

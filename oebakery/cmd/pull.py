@@ -1,8 +1,9 @@
 import os
 
 import oebakery
-from oebakery import die, err
-import cmd_update
+logger = oebakery.logger
+import update
+
 
 # oe pull
 # pull oe-lite.git repo and all submodules, branch submodules are git
@@ -14,15 +15,16 @@ import cmd_update
 # oe pull meta/core
 # pull submodule meta/core.
 
-args = "[<path>...]"
-description = """Fetch changes from upstream repositories.
 
+args = "[<path>...]"
+description = ("Fetch changes from upstream repositories", """
   When called without path arguments, fetch and merge head of main repository,
   checkout the submodule versions stored in main repository for all non-branch
   submodules, and fetch and merge head of branch submodules.
 
   When called with a list of submodule paths, pull only those modules.
-  Use "." to specify main repository."""
+  Use "." to specify main repository.""")
+
 
 def add_parser_options(parser):
     parser.add_option("-r", "--remotes",
@@ -31,7 +33,7 @@ def add_parser_options(parser):
     return
 
 
-def run(parser, options, args, config):
+def run(options, args, config):
     if not args or "." in args:
         options.main = True
     else:
@@ -44,7 +46,7 @@ def run(parser, options, args, config):
             submodules.append((path, url, params))
 
     if not os.path.exists(".git"):
-        die("Aiee!  This is not even a git repository:", os.getcwd())
+        return "Aiee!  This is not even a git repository: %s"%(os.getcwd())
 
     if options.main:
         if options.remotes and not git_remote_update():
@@ -76,7 +78,7 @@ def run(parser, options, args, config):
 
     ok = True
     for path, url, params in submodules:
-        if not cmd_update.update_submodules([(path, url, params)]):
+        if not update.update_submodules([(path, url, params)]):
             ok = False
             continue
         if "branch" in params:
@@ -92,7 +94,7 @@ def git_pull(path=None, branch=None):
     else:
         name = ""
     if not oebakery.call("git pull", dir=path):
-        err("Failed to pull%s"%(name))
+        logger.error("Failed to pull %s"%(name))
         return False
     return True
 
@@ -112,6 +114,6 @@ def git_remote_update(path=None):
                 msg = "Failed to prune remote %s"%(remote)
                 if path:
                     msg += " in %s"%(path)
-                err(msg)
+                logger.error(msg)
                 ok = False
     return ok

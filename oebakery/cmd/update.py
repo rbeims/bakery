@@ -1,8 +1,12 @@
 import os
 import string
 
+
 import oebakery
-from oebakery import die, err
+
+
+description = "Update OE-lite repository according to configuration"
+arguments = None
 
 # oe update: (setup submodules based on OETASK in bakery.conf)
 #   git submodule sync
@@ -20,7 +24,7 @@ from oebakery import die, err
 #   git submodule sync
 #   print warning for submodules not in OETASK
 #     (ask to add it to bakery.conf or remove it)
-#         
+#
 #
 
 # oe pull:
@@ -40,13 +44,10 @@ from oebakery import die, err
 #       git submodule update --recursive
 #
 
-arguments = None
-description = "Update OE-lite repository according to configuration"
 
-
-def run(parser, options, args, config):
+def run(options, args, config):
     if not os.path.exists('.git'):
-        die("Aiee! This is not even a git repository:", os.getcwd())
+        return "Aiee! This is not even a git repository: %s"%(os.getcwd())
 
     # check for possibly detached heads, and abort (return False)
     # if this or at least one of the submodules looks detached
@@ -65,15 +66,15 @@ def update_submodules(submodules):
     ok = True
     for path, url, params in submodules:
         if not check_submodule(path):
-            err("submodule %s is not on a branch"%(path))
+            logger.error("submodule %s is not on a branch", path)
             ok = False
             continue
         if not update_submodule(path, url, params):
-            err("update of submodule %s failed"%(path))
+            logger.error("update of submodule %s failed", path)
             ok = False
 
     if not ok:
-        err("update failed")
+        logger.error("update failed")
         return False
 
     return True
@@ -91,13 +92,13 @@ def update_submodule(path, fetch_url, params):
 
     if (os.path.exists(path) and
         not oebakery.call("git submodule sync -- %s"%(path))):
-        err("Failed to synchronize git submodule")
+        logger.error("Failed to synchronize git submodule")
 
     status = git_submodule_status(path)
     if status and status[0] == "-":
         cmd = "git submodule update --init --recursive"
         if not oebakery.call("%s %s"%(cmd, path)):
-            err("Failed to add submodule: %s"%(path))
+            logger.error("Failed to add submodule: %s", path)
             return False
 
     elif status is None:
@@ -107,11 +108,11 @@ def update_submodule(path, fetch_url, params):
             if branch != "master":
                 cmd += " -b %s"%(params["branch"])
         if not oebakery.call("%s -- %s %s"%(cmd, fetch_url, path)):
-            err("Failed to add submodule: %s"%(path))
+            logger.error("Failed to add submodule: %s", path)
             return False
         if not oebakery.call(
             "git submodule update --init --recursive %s"%(path)):
-            err("Failed to initialize submodule: %s"%(path))
+            logger.error("Failed to initialize submodule: %s", path)
             return False
 
     # set push_default to 'tracking' if unset
@@ -128,7 +129,7 @@ def update_submodule(path, fetch_url, params):
     if fetch_url != current_url:
         if not oebakery.call('git config remote.origin.url %s'%(fetch_url),
                              dir=path):
-            err("Failed to set origin url %s for %s"%(fetch_url, path))
+            logger.error("Failed to set origin url %s for %s", fetch_url, path)
             ok = False
 
     # set push url as specified
@@ -139,39 +140,40 @@ def update_submodule(path, fetch_url, params):
     if push_url and current_url != push_url:
         if not oebakery.call('git config remote.origin.pushurl %s'%(push_url),
                              dir=path):
-            err("Failed to set origin push url %s for %s"%(push_url, path))
+            logger.error("Failed to set origin push url %s for %s",
+                         push_url, path)
             ok = False
 
     if not oebakery.call('git remote update --prune origin', dir=path):
-        err("failed to update remote origin")
+        logger.error("failed to update remote origin")
         ok = False
 
     # remove override of push url if not specified
     if not push_url and current_url:
         if not oebakery.call('git config --unset remote.origin.pushurl',
                              dir=path):
-            err("Failed to unset origin push url for %s"%(path))
+            logger.error("Failed to unset origin push url for %s", path)
             ok = False
 
     # update remotes
     for (name, url) in params.get("remote", []):
         if not git_update_remote(name, url, path=path):
-            err("update of remote %s failed"%(name))
+            logger.error("update of remote %s failed", name)
             ok = False
 
-    # 
+    #
     if "tag" in params:
         tag = params["tag"]
         if not oebakery.call("git checkout --detach refs/tags/%s"%(tag),
                              dir=path):
-            err("Failed to checkout submodule %s tag %s"%(
-                    path, tag))
+            logger.error("Failed to checkout submodule %s tag %s",
+                         path, tag)
             return False
     elif "commit" in params:
         commit = params["commit"]
         if not oebakery.call("git checkout --detach %s"%(commit), dir=path):
-            err("Failed to checkout submodule %s commit %s"%(
-                    path, commit))
+            logger.error("Failed to checkout submodule %s commit %s",
+                         path, commit)
             return False
     elif "branch" in params:
         branch = params["branch"]
@@ -179,13 +181,13 @@ def update_submodule(path, fetch_url, params):
         if branch in branches:
             if not branches[branch]["current"]:
                 if not oebakery.call("git checkout %s"%(branch), dir=path):
-                    err("Failed to checkout submodule %s branch %s"%(
-                            path, branch))
+                    logger.error("Failed to checkout submodule %s branch %s",
+                                 path, branch)
                     return False
         else:
             if not oebakery.call("git checkout -t -b %s %s"%(
                     branch, "origin/%s"%(branch)), dir=path):
-                err("Failed to checkout%s branch %s"%(name, branch))
+                logger.error("Failed to checkout%s branch %s", name, branch)
                 return False
         current_remote = oebakery.call(
             "git config --get branch.%s.remote"%(branch),
@@ -203,7 +205,7 @@ def update_submodule(path, fetch_url, params):
     else:
         if not oebakery.call(
             "git submodule update --init --recursive %s"%(path)):
-            err("Failed to initialize submodule: %s"%(path))
+            logger.error("Failed to initialize submodule: %s", path)
             ok = False
 
     return ok
@@ -259,7 +261,7 @@ def git_update_remote(name, url, path=None):
 
     url_split = url.split(",")
     if len(url_split) < 1 or len(url_split) > 2:
-        err("Invalid remote url: %s"%(url))
+        logger.error("Invalid remote url: %s", url)
         return False
     if len(url_split) == 2:
         push_url = url_split[1]
@@ -270,7 +272,7 @@ def git_update_remote(name, url, path=None):
     # get list of remotes and their urls
     remotes_list = oebakery.call('git remote -v', dir=path, quiet=True)
     if remotes_list == None:
-        err("Failed to get list of remotes")
+        logger.error("Failed to get list of remotes")
         return False
     else:
         remotes_list = remotes_list.split('\n')
@@ -302,14 +304,14 @@ def git_update_remote(name, url, path=None):
     if not remotes_fetch.has_key(name):
         if not oebakery.call('git remote add %s %s'%(name, fetch_url),
                              dir=path):
-            err("Failed to add remote %s"%(name))
+            logger.error("Failed to add remote %s", name)
             return False
         # also add push url if specified
         if push_url:
             if not oebakery.call(
                 'git config remote.%s.pushurl %s'%(name, push_url),
                                  dir=path):
-                err("failed to set pushurl %s for %s"%(push_url, name))
+                logger.error("failed to set pushurl %s for %s", push_url, name)
                 ok = False
 
         return ok
@@ -318,7 +320,7 @@ def git_update_remote(name, url, path=None):
     if remotes_fetch[name] != fetch_url:
         if not oebakery.call('git config remote.%s.url %s'%(name, fetch_url),
                              dir=path):
-            err("failed to set url %s for %s"%(name, fetch_url))
+            logger.error("failed to set url %s for %s", name, fetch_url)
             ok = False
 
     # if push url is different url, change it
@@ -327,7 +329,7 @@ def git_update_remote(name, url, path=None):
             if not oebakery.call(
                 'git config remote.%s.pushurl %s'%(name, push_url),
                 dir=path):
-                err("failed to set pushurl %s for %s"%(push_url, name))
+                logger.error("failed to set pushurl %s for %s", push_url, name)
                 ok = False
 
     # if push url is currently set, but shouldn't be, remove it
@@ -335,7 +337,7 @@ def git_update_remote(name, url, path=None):
         if remotes_push.has_key(name) and remotes_push[name] != fetch_url:
             if not oebakery.call('git config --unset remote.%s.pushurl'%(name),
                                  dir=path):
-                err("failed to unset pushurl for %s"%(name))
+                logger.error("failed to unset pushurl for %s", name)
                 ok = False
 
     return ok

@@ -1,6 +1,9 @@
+import sys
 import os
 import ply.lex, ply.yacc
-from data import BakeryData
+
+import oebakery
+logger = oebakery.logger
 
 
 class ParseError(Exception):
@@ -110,7 +113,7 @@ class BakeryParser(object):
         if data is not None:
             self.data = data
         else:
-            self.data = BakeryData()
+            self.data = oebakery.data.BakeryData()
         return
 
 
@@ -377,3 +380,90 @@ class BakeryParser(object):
 #                print "%s%s"%(" "*(prefixlen + errlinebefore),
 #                              "^"*len(self.symbol))
 #        return
+
+
+def parse(path):
+    confparser = BakeryParser()
+    return confparser.parse(path)
+
+
+def parse_bakery_conf():
+    topdir = oebakery.get_topdir()
+    oebakery.chdir(topdir)
+
+    config = parse("conf/bakery.conf")
+    if config is None:
+        return None
+
+    ok = True
+
+    OEPATH = []
+    OERECIPES = []
+    PYTHONPATH = []
+
+    OESTACK = config.get("OESTACK") or ""
+    config["__oestack"] = []
+    config["__submodules"] = []
+    for oestack in OESTACK.split():
+        oestack = oestack.split(";")
+        path = oestack[0]
+        params = {}
+        for param in oestack[1:]:
+            key, value = param.split("=", 1)
+            if key == "remote":
+                if not key in params:
+                    params[key] = []
+                name, url = value.split(",", 1)
+                params[key].append((name, url))
+            else:
+                params[key] = value
+        if path.startswith("meta/"):
+            if not "oepath" in params:
+                params["oepath"] = ""
+            if not "pythonpath" in params:
+                params["pythonpath"] = "lib"
+            if not "oerecipes" in params:
+                params["oerecipes"] = "*/*.oe"
+        if "srcuri" in params and params["srcuri"].startswith("git://"):
+            if not "protocol" in params:
+                params["protocol"] = "git"
+            url = "%s%s"%(params["protocol"], params["srcuri"][3:])
+            config["__submodules"].append((path, url, params))
+        config["__oestack"].append((path, params))
+        if "oepath" in params:
+            if params["oepath"] == "":
+                oepath = path
+            else:
+                oepath = os.path.join(path, params["oepath"])
+            OEPATH.append(oepath)
+            oerecipes_base = os.path.join(oepath, "recipes")
+            if os.path.isdir(oerecipes_base):
+                for oerecipes in params["oerecipes"].split(":"):
+                    OERECIPES.append(os.path.join(oerecipes_base, oerecipes))
+        if "pythonpath" in params:
+            if params["pythonpath"] == "":
+                PYTHONPATH.append(os.path.abspath(path))
+            else:
+                pythonpath = os.path.join(path, params["pythonpath"])
+                if os.path.exists(pythonpath):
+                    PYTHONPATH.append(os.path.abspath(pythonpath))
+
+    OEPATH.append(".")
+    if os.path.isdir("recipes"):
+        OERECIPES.append("recipes/*/*.oe")
+
+    config["OEPATH"] = ":".join(map(os.path.abspath, OEPATH))
+    config["OEPATH_PRETTY"] = ":".join(OEPATH)
+
+    config["OERECIPES"] = ":".join(map(os.path.abspath, OERECIPES))
+    config["OERECIPES_PRETTY"] = ":".join(OERECIPES)
+
+    config["TOPDIR"] = topdir
+
+    sys.path = PYTHONPATH + sys.path
+
+    logger.debug("OEPATH = %s", config["OEPATH_PRETTY"])
+    logger.debug("OERECIPES = %s", config["OERECIPES_PRETTY"])
+    logger.debug("PYTHONPATH = %s", PYTHONPATH)
+
+    return config

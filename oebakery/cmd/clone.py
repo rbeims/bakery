@@ -1,24 +1,22 @@
 import optparse, sys, os
 import oebakery
 
-arguments = "<repository> [directory]"
-description = """Clone an OE-lite development environment into a new directory
 
-Arguments:
-  repository            OE-lite (git) repository to clone
-  directory             directory to to clone into (default is current dir)"""
+description = "Clone an OE-lite development environment into a new directory"
+arguments = (
+    ("repository", "OE-lite (git) repository to clone", 0),
+    ("directory", "directory to to clone into (default is current dir)", 1))
+flags = ("no-bakery-conf")
 
-def run(parser, options, args, config):
 
-    if len(args) < 1:
-        parser.error('too few arguments')
-    if len(args) > 2:
-        parser.error('too many arguments')
-
+def parse_args(options, args):
     if not args:
-        parser.error("repository argument required")
+        return "repository argument required"
+    if len(args) < 1:
+        return "too few arguments"
+    if len(args) > 2:
+        return "too many arguments"
     options.repository = args.pop(0)
-
     if args:
         options.directory = args.pop(0)
     else:
@@ -26,17 +24,20 @@ def run(parser, options, args, config):
         options.directory = os.path.basename(options.directory)
         if options.directory[-4:] == '.git':
             options.directory = options.directory[:-4]
+    return 0
 
+
+def run(options, args, config):
     if not oebakery.call('git clone --recursive %s %s'%(
             options.repository, options.directory)):
-        return 1
+        return "git clone failed"
 
     topdir = oebakery.set_topdir(options.directory)
     oebakery.chdir(options.directory)
 
-    oebakery.copy_local_conf_sample("conf")
+    oebakery.path.copy_local_conf_sample("conf")
 
     if not oebakery.call('git config push.default tracking'):
         print 'Failed to set push.default = tracking'
 
-    return ("update", ({}, []), config)
+    return ["update"]
