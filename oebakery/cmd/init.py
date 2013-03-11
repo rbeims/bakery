@@ -11,8 +11,6 @@ flags = ("no-oestack")
 # To be run from a directory that is _not_ a git repository yet.
 
 def run(options, args, config):
-    assert config is None
-
     topdir = oebakery.set_topdir(os.path.curdir)
 
     if oebakery.call("git status", quiet=True):
