@@ -448,9 +448,9 @@ def parse_bakery_conf():
                 if os.path.exists(pythonpath):
                     PYTHONPATH.append(os.path.abspath(pythonpath))
 
-    OEPATH.append(".")
+    OEPATH.insert(0, ".")
     if os.path.isdir("recipes"):
-        OERECIPES.append("recipes/*/*.oe")
+        OERECIPES.insert(0, "recipes/*/*.oe")
 
     config["OEPATH"] = ":".join(map(os.path.abspath, OEPATH))
     config["OEPATH_PRETTY"] = ":".join(OEPATH)
