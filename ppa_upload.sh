@@ -1,6 +1,7 @@
 #!/bin/sh
 
 version=`./setup.py --version`
+build_version=1
 
 eval `gpg-agent --daemon`
 
@@ -16,7 +17,7 @@ for distro in $LEAD_DISTRO $OLD_DISTROS ; do
   else
     ln -sf control.common debian/control
   fi
-  debchange --distribution ${distro} --newversion ${version}~${distro} -b ${distro} build
+  debchange --distribution ${distro} --newversion ${version}~${distro}${build_version} -b ${distro} build
   debuild -S -k5B997C4F -sa
   echo
 done
@@ -24,5 +25,5 @@ done
 cd ..
 for distro in $LEAD_DISTRO $OLD_DISTROS ; do
   print "Uploading $distro"
-  dput ppa:esben-haabendal/oe-lite oe-lite_${version}~${distro}_source.changes
+  dput ppa:esben-haabendal/oe-lite oe-lite_${version}~${distro}${build_version}_source.changes
 done
