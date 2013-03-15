@@ -6,7 +6,7 @@ import oebakery
 class ConsoleFormatter(logging.Formatter):
 
     def __init__(self):
-        super(ConsoleFormatter, self).__init__()
+        logging.Formatter.__init__(self)
         return
 
     def format(self, record):
