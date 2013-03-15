@@ -6,7 +6,7 @@ build_version=1
 eval `gpg-agent --daemon`
 
 LEAD_DISTRO="precise"
-OLD_DISTROS="lucid maverick natty oneiric quantal"
+OLD_DISTROS="lucid natty oneiric quantal raring"
 
 export DH_ALWAYS_EXCLUDE=.git
 
