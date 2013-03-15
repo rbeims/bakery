@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-VERSION = "4"
+VERSION = "4.0.0"
 
 # New arguments strategy: oe [bakery options] <command> [command options]
 #

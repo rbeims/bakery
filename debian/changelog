@@ -1,3 +1,46 @@
+oe-lite (4.0.0~quantal) quantal; urgency=low
+
+  * quantal build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Fri, 15 Mar 2013 11:12:48 +0100
+
+oe-lite (4.0.0~oneiric) oneiric; urgency=low
+
+  * oneiric build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Fri, 15 Mar 2013 11:12:43 +0100
+
+oe-lite (4.0.0~natty) natty; urgency=low
+
+  * natty build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Fri, 15 Mar 2013 11:12:39 +0100
+
+oe-lite (4.0.0~maverick) maverick; urgency=low
+
+  * maverick build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Fri, 15 Mar 2013 11:12:34 +0100
+
+oe-lite (4.0.0~lucid) lucid; urgency=low
+
+  * lucid build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Fri, 15 Mar 2013 11:12:29 +0100
+
+oe-lite (4.0.0~precise) precise; urgency=low
+
+  * precise build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Fri, 15 Mar 2013 11:12:13 +0100
+
+oe-lite (4.0.0) precise; urgency=low
+
+  * Add dynamic manifest commands
+  * Change command-line interface
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Fri, 15 Mar 2013 11:11:07 +0100
+
 oe-lite (3.1.0~quantal) quantal; urgency=low
 
   * quantal build
