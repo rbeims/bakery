@@ -39,7 +39,7 @@ def module_version(module):
 # Import oebakery modules
 try:
     import oebakery
-    if not module_version(oebakery) != VERSION:
+    if module_version(oebakery) != VERSION:
         del sys.modules["oebakery"]
         del oebakery
         raise Exception()
