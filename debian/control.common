@@ -7,7 +7,7 @@ Standards-Version: 3.9.1
 
 Package: oe-lite
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, python-magic, python-ply, python-pycurl, python-pysqlite2, python-pkg-resources, python-dev, coreutils (>=7.4), sed (>=4.2.1), git-core (>=1.7.4), cvs, subversion, mercurial, quilt, gawk, texinfo, automake (>= 1.10), autoconf, autopoint, libtool (>= 1.5.26), curl, texi2html, diffstat, openjade, groff, mtd-utils, build-essential, make, gcc, g++, binutils, bison, flex, bc, ncurses-dev, unzip, lzma, gtk-doc-tools, docbook-utils, libxml2-utils, xmlto, help2man, libglib2.0-dev
+Depends: ${misc:Depends}, ${python:Depends}, python-magic, python-ply, python-pycurl, python-svn, python-pysqlite2, python-pkg-resources, python-dev, coreutils (>=7.4), sed (>=4.2.1), git-core (>=1.7.4), cvs, subversion, mercurial, quilt, gawk, texinfo, automake (>= 1.10), autoconf, autopoint, libtool (>= 1.5.26), curl, texi2html, diffstat, openjade, groff, mtd-utils, build-essential, make, gcc, g++, binutils, bison, flex, bc, ncurses-dev, unzip, lzma, gtk-doc-tools, docbook-utils, libxml2-utils, xmlto, help2man, libglib2.0-dev
 Recommends: autopoint
 #Provides: ${python:Provides}
 Description: embedded Linux platform development kit
