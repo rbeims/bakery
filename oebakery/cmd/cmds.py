@@ -1,4 +1,5 @@
 import optparse
+import os
 
 
 import oebakery
@@ -37,9 +38,24 @@ def add_builtin_cmds():
     return
 
 
+
+def clean_orphaned_pycs(directory):
+    """Remove all .pyc files without a correspondent module"""
+    for root, dirs, files in os.walk(directory):
+        for f in files:
+            if f.endswith(".pyc"):
+                pyc = os.path.join(root, f)
+                if not os.path.exists(pyc[:-1]):
+                    logger.debug("deleting orphaned file %s" % pyc)
+                    os.unlink(pyc)
+    return
+
+
 def add_manifest_cmds():
     logger.debug("add_manifest_cmds()")
     try:
+        import oelite
+        clean_orphaned_pycs(os.path.join(oelite.__path__[0], "cmd"))
         import oelite.cmd
         module = "oelite.cmd"
         cmds = oelite.cmd.manifest_cmds
