@@ -65,10 +65,12 @@ def run(options, args, config):
 
 def update_submodules(submodules):
     ok = True
+    skipped = []
     for path, url, params in submodules:
         if not check_submodule(path):
-            logger.error("submodule %s is not on a branch", path)
-            ok = False
+            logger.warning("submodule %s is not on a branch, skipping update",
+                           path)
+            skipped.append(path)
             continue
         if not update_submodule(path, url, params):
             logger.error("update of submodule %s failed", path)
@@ -77,6 +79,9 @@ def update_submodules(submodules):
     if not ok:
         logger.error("update failed")
         return False
+    elif skipped:
+        logger.warning("the following submodules were skipped: %s",
+                       ", ".join(skipped))
 
     return True
 
