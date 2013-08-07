@@ -86,6 +86,14 @@ def update_submodules(submodules):
     return True
 
 
+_manifest_url = None
+def manifest_url():
+    global _manifest_url
+    if _manifest_url is None:
+        _manifest_url = oebakery.call(
+            'git config --get remote.origin.url', quiet=True).strip()
+    return _manifest_url
+
 def check_submodule(path):
     if not os.path.exists(path):
         return True
@@ -133,8 +141,16 @@ def update_submodule(path, fetch_url, params):
     if current_url:
         current_url = current_url.strip()
     if fetch_url != current_url:
-        if not oebakery.call('git config remote.origin.url %s'%(fetch_url),
-                             dir=path):
+        if fetch_url.startswith('./'):
+            fetch_url_abs = os.path.join(manifest_url(), fetch_url[2:])
+        elif fetch_url.startswith('../'):
+            fetch_url_abs = os.path.join(
+                os.path.dirname(manifest_url()), fetch_url[3:])
+        else:
+            fetch_url_abs = fetch_url
+        if (fetch_url_abs != current_url and
+            not oebakery.call('git config remote.origin.url %s'%(fetch_url),
+                              dir=path)):
             logger.error("Failed to set origin url %s for %s", fetch_url, path)
             ok = False
 
