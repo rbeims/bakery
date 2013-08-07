@@ -4,7 +4,7 @@ import ply.lex, ply.yacc
 
 import oebakery
 logger = oebakery.logger
-
+import oebakery.gitmodules
 
 class ParseError(Exception):
 
@@ -402,6 +402,7 @@ def parse_bakery_conf():
     PYTHONPATH = []
 
     OESTACK = config.get("OESTACK") or ""
+    gitmodules = oebakery.gitmodules.parse_dot_gitmodules()
     config["__oestack"] = []
     config["__submodules"] = []
     for oestack in OESTACK.split():
@@ -427,6 +428,16 @@ def parse_bakery_conf():
         if "srcuri" in params and params["srcuri"].startswith("git://"):
             if not "protocol" in params:
                 params["protocol"] = "git"
+        if path in gitmodules:
+            url = gitmodules[path]['url']
+            if "srcuri" in params:
+                srcuri_url = "%s%s"%(params["protocol"], params["srcuri"][3:])
+                if srcuri_url != url:
+                    logger.warning(
+                        "mismatch between .gitmodules url and srcuri for %s",
+                        path)
+            config["__submodules"].append((path, url, params))
+        elif "srcuri" in params and params["srcuri"].startswith("git://"):
             url = "%s%s"%(params["protocol"], params["srcuri"][3:])
             config["__submodules"].append((path, url, params))
         config["__oestack"].append((path, params))
