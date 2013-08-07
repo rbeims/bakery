@@ -3,6 +3,7 @@ import string
 
 
 import oebakery
+logger = oebakery.logger
 
 
 description = "Update OE-lite repository according to configuration"
