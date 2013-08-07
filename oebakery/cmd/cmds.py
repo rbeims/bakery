@@ -64,7 +64,8 @@ def add_manifest_cmds():
         logger.debug("import oelite.cmd failed", exc_info=True)
         try:
             import oelite.baker
-        except:
+        except e:
+            print e
             return False
         module = "oebakery.cmd"
         cmds = ("bake", "show")

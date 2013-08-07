@@ -45,7 +45,7 @@ try:
         raise Exception()
 except:
     if bakery_options.debug:
-        print "DEBUG: bakery: importing oebakery module from source directory"
+        print "DEBUG: bakery: importing oebakery module from source directory:", os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     sys.path.insert(
         0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
     try:
@@ -56,6 +56,7 @@ except:
             sys.exit(1)
     except ImportError, e:
         print >>sys.stderr, "CRITICAL: cannot import oebakery module"
+        print e
         sys.exit(1)
 
 # Initialize logging
