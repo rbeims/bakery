@@ -1,12 +1,13 @@
 import os
 import re
 import ConfigParser
+import StringIO
 
 import oebakery
 logger = oebakery.logger
 
 
-def parse_dot_gitmodules(path='.gitmodules'):
+def parse_dot_gitmodules(path='.gitmodules', buffer=None):
     class gitmodules(file):
         def __init__(self, path):
             return super(gitmodules, self).__init__(path)
@@ -16,9 +17,12 @@ def parse_dot_gitmodules(path='.gitmodules'):
                 line = line.lstrip()
             return line
     parser = ConfigParser.RawConfigParser()
-    if not os.path.exists(path):
-        return {}
-    parser.readfp(gitmodules(path))
+    if buffer is None:
+        if not os.path.exists(path):
+            return {}
+        parser.readfp(gitmodules(path), path)
+    else:
+        parser.readfp(StringIO.StringIO(buffer.replace('\t', '')))
     submodule_re = re.compile('submodule "(.*)"')
     submodules = {}
     for section in parser.sections():
