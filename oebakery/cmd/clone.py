@@ -2,10 +2,10 @@ import optparse, sys, os
 import oebakery
 
 
-description = "Clone an OE-lite development environment into a new directory"
+description = "Clone an OE-lite repository into a new directory"
 arguments = (
-    ("repository", "OE-lite (git) repository to clone", 0),
-    ("directory", "directory to to clone into (default is current dir)", 1))
+    ("repository", "OE-lite repository to clone from", 0),
+    ("directory", "directory to clone into (default is repository name)", 1))
 flags = ("no-bakery-conf")
 
 
