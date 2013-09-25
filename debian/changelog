@@ -1,3 +1,51 @@
+oe-lite (4.0.3~raring1) raring; urgency=low
+
+  * raring build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 25 Sep 2013 08:52:59 +0200
+
+oe-lite (4.0.3~quantal1) quantal; urgency=low
+
+  * quantal build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 25 Sep 2013 08:52:54 +0200
+
+oe-lite (4.0.3~oneiric1) oneiric; urgency=low
+
+  * oneiric build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 25 Sep 2013 08:52:48 +0200
+
+oe-lite (4.0.3~natty1) natty; urgency=low
+
+  * natty build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 25 Sep 2013 08:52:43 +0200
+
+oe-lite (4.0.3~lucid1) lucid; urgency=low
+
+  * lucid build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 25 Sep 2013 08:52:38 +0200
+
+oe-lite (4.0.3~precise1) precise; urgency=low
+
+  * precise build
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 25 Sep 2013 08:52:25 +0200
+
+oe-lite (4.0.3) precise; urgency=low
+
+  * Bugfix release
+  * Ignore leftover oelite.cmd .pyc files
+  * clone: Rephrase argument help
+  * update: Improve error handling for submodule heads not on branch
+  * update: Fix logging output
+  * Improve debugging of import errors
+  * Add gperf dependency
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Wed, 25 Sep 2013 08:46:39 +0200
+
 oe-lite (4.0.2~raring1) raring; urgency=low
 
   * raring build
