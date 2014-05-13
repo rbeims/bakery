@@ -22,7 +22,6 @@ def add_parser_options(parser):
                       action="store_true", default=False,
                       help="Create a mirror OE-lite repository")
     parser.add_option("-b", "--branch", action='store', type=str,
-                      default='master',
                       help="repository branch to checkout initially"
                       " [default: %(default)s]")
     return
@@ -58,8 +57,12 @@ def run(options, args, config):
 
 
 def clone_checkout(options):
-    if not oebakery.call('git clone --recursive %s --branch %s %s'%(
-            options.repository, options.branch ,options.directory)):
+    if options.branch:
+        branch_arg = ' --branch %s'%(options.branch)
+    else:
+        branch_arg = ''
+    if not oebakery.call('git clone --recursive %s%s %s'%(
+            options.repository, branch_arg ,options.directory)):
         return "git clone failed"
 
     topdir = oebakery.set_topdir(options.directory)
