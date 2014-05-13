@@ -78,14 +78,20 @@ def clone_checkout(options):
 
 def clone_bare(options):
     global clone_cmd
-    clone_cmd = 'git clone %s %%s %%s'%(
+    clone_cmd = 'git clone %s %%s %%s %%s'%(
         ['--bare', '--mirror'][int(options.mirror)])
-    failed = clone_bare_recursive(options.repository, options.directory)
+    failed = clone_bare_recursive(options.repository, options.directory, branch=options.branch)
     if failed:
         return "failed repositories: %s"%(', '.join(failed))
 
-def clone_bare_recursive(repository, directory):
-    if not oebakery.call(clone_cmd%(repository, directory)):
+def clone_bare_recursive(repository, directory, branch=None):
+    if branch:
+        #only clone using branch on the top level repository
+        #to get the wanted state of submodules
+        cmd = clone_cmd%('--branch %s'%(branch),repository, directory)
+    else:
+        cmd = clone_cmd%("",repository, directory)
+    if not oebakery.call(cmd):
         logger.error("bare clone of module %s failed", directory)
         return [directory]
     gitmodules = oebakery.call(
