@@ -5,8 +5,8 @@ build_version=1
 
 eval `gpg-agent --daemon`
 
-LEAD_DISTRO="precise"
-OLD_DISTROS="lucid quantal raring saucy"
+LEAD_DISTRO="trusty"
+OLD_DISTROS="lucid precise quantal saucy"
 
 export DH_ALWAYS_EXCLUDE=.git
 
@@ -24,6 +24,6 @@ done
 
 cd ..
 for distro in $LEAD_DISTRO $OLD_DISTROS ; do
-  print "Uploading $distro"
+  echo "Uploading $distro"
   dput ppa:esben-haabendal/oe-lite oe-lite_${version}~${distro}${build_version}_source.changes
 done

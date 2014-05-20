@@ -1,3 +1,40 @@
+oe-lite (4.2.0~quantal1) quantal; urgency=low
+
+  * quantal build
+
+ -- Esben Haabendal <esben@haabendal.dk>  Tue, 20 May 2014 11:59:01 +0200
+
+oe-lite (4.2.0~precise1) precise; urgency=low
+
+  * precise build
+
+ -- Esben Haabendal <esben@haabendal.dk>  Tue, 20 May 2014 11:58:59 +0200
+
+oe-lite (4.2.0~lucid1) lucid; urgency=low
+
+  * lucid build
+
+ -- Esben Haabendal <esben@haabendal.dk>  Tue, 20 May 2014 11:58:57 +0200
+
+oe-lite (4.2.0~trusty1) trusty; urgency=low
+
+  * trusty build
+
+ -- Esben Haabendal <esben@haabendal.dk>  Tue, 20 May 2014 11:58:52 +0200
+
+oe-lite (4.2.0~saucy1) saucy; urgency=low
+
+  * saucy build
+
+ -- Esben Haabendal <esben@haabendal.dk>  Tue, 20 May 2014 11:47:35 +0200
+
+oe-lite (4.2.0) precise; urgency=low
+
+  * Feature release
+  * clone: add argument to fetch specific branch in given repository
+
+ -- Esben Haabendal <esben.haabendal@prevas.dk>  Tue, 20 May 2014 09:51:02 +0200
+
 oe-lite (4.1.0~saucy1) saucy; urgency=low
 
   * saucy build

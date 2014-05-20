@@ -1,6 +1,6 @@
 from __future__ import with_statement # This isn't required in Python 2.6
 
-__version__ = "4.1.0"
+__version__ = "4.2.0"
 
 __all__ = []
 
