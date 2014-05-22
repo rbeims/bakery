@@ -1,0 +1,23 @@
+// -*- Doc -*-
+
+Documentation for the OE-lite bakery project
+============================================
+:author:	Esben Haabendal, Kim Højgaard-Hansen
+:email:		esben.haabendal@prevas.dk, kim.hansen@prevas.dk
+:doctype:	book
+:theme:		volnitsky
+:toc2:
+:icons:
+:pygments:
+:bake:          OE-lite bakery
+
+[preface]
+{bake} documentation
+--------------------
+
+This document serves as documentation of various aspects of the
+tool used to build OE-lite based projects: {bake}
+
+:leveloffset: 1
+
+include::release.txt[]

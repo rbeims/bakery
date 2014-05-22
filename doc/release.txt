@@ -1,0 +1,76 @@
+// -*- Doc -*-
+
+Release process
+===============
+
+This chapter describes how a new release of {bake} is made.
+
+.The steps needed to make a new release are:
+- Create temporary release commit
+- Run ppa_upload.sh
+- Tag the new release in git
+- Create tarballs for OE-lite.org
+- Upload to PyPi
+
+Create temporary release commit
+-------------------------------
+
+First make an initial commit with version and changelog changes for the release.
+
+edit `oebakery/oe.py` and `oebakery/__init__.py and add the new version.
+
+edit `debian/changelog` with info for the new release. Take a look at the previous
+release commits to see how to do this.
+
+Run `ppa_upload.sh`
+-------------------
+
+First look at: https://launchpad.net/ubuntu under "Active series and milestones"
+to check what ubuntu releases are still active. The newest non-LTS release can often
+be skipped.
+
+Then edit `ppa_upload.sh`:
+
+`LEAD_DISTRO="trusty" #preferred distro, most likely newest LTS`
+`OLD_DISTROES="lucid precise quantal saucy" #the rest of the active releases`
+
+run `ppa_upload.sh`
+
+NOTE: currently requires `~/.dput.cf` and Esbens GPG key.
+
+WARNING: Wait until the PPAs have been created before proceeding to the next step.
+
+Tag the new release in Git
+--------------------------
+
+`git tag -a -m 'release 4.2.0' v4.2.0`
+
+Create tarballs for OE-lite.org
+-------------------------------
+
+Change directory to the parent directory of the {bake} source:
+
+`git archive --prefix=bakery-4.2.0/ -o oe-lite-bakery-4.2.0.tar v4.2.0`
+
+`cat oe-lite-bakery-4.2.0.tar | gzip > oe-lite-bakery-4.2.0.tar.gz &&
+cat oe-lite-bakery-4.2.0.tar | bzip2 > oe-lite-bakery-4.2.0.tar.bz2 &&
+cat oe-lite-bakery-4.2.0.tar | xz > oe-lite-bakery-4.2.0.tar.xz`
+
+Upload the tarballs to http://oe-lite.org/download/bakery/
+
+For more information see: http://oe-lite.org/doc/handbook/handbook.html#_release_management
+
+Upload to PyPi
+--------------
+
+WARNING: FIXME
+
+TODO
+----
+
+Wishes for improved releases process include:
+
+- Figure out if the https://build.opensuse.org/[OpenSuse Open Build Service (OBS)]
+could be used to release binaries for more distroes
+- Create team/group/project PPA instead of Esbens personal for releases
+- Can `debchange` be used to make the changelog edits?
