@@ -425,7 +425,7 @@ def parse_bakery_conf():
                 params["pythonpath"] = "lib"
             if not "oerecipes" in params:
                 params["oerecipes"] = "*/*.oe"
-        if "srcuri" in params and params["srcuri"].startswith("git://"):
+        if "srcuri" in params:
             if not "protocol" in params:
                 params["protocol"] = "git"
         if path in gitmodules:
@@ -437,8 +437,8 @@ def parse_bakery_conf():
                         "mismatch between .gitmodules url and srcuri for %s",
                         path)
             config["__submodules"].append((path, url, params))
-        elif "srcuri" in params and params["srcuri"].startswith("git://"):
-            url = "%s%s"%(params["protocol"], params["srcuri"][3:])
+        elif "srcuri" in params:
+            url = "%s%s"%(params["protocol"], params["srcuri"][len(params["protocol"]):])
             config["__submodules"].append((path, url, params))
         config["__oestack"].append((path, params))
         if "oepath" in params:
